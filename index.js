@@ -112,9 +112,9 @@ const port = process.env.PORT || 9090;
   console.log('Plugins installed successful ✅')
   console.log('Bot connected to whatsapp ✅')
   
-  let up = `*✨ 𝙷𝙴𝙻𝙻𝙾𝚆 𝙷𝚄𝙽𝚃𝙴𝚁 𝚇𝙼𝙳.𝟻 𝙻𝙴𝙶𝙴𝙽𝙳𝚂! ✨*
+  let up = `*✨ ʜᴇʟʟᴏᴡ ʜᴜɴᴛᴇʀ-xᴍᴅ ʟᴇɢᴇɴᴅꜱ! ✨*
 
-╭─〔 *💻 𝙃𝙐𝙉𝙏𝙀𝙍 𝙓𝙈𝘿.5 𝘽𝙊𝙏* 〕  
+╭─〔 *ʜᴜɴᴛᴇʀ-xᴍ ʙᴏᴛ💢* 〕  
 ├─▸ *𝕤𝕚𝕞𝕡𝕝𝕚𝕔𝕚𝕥𝕪. 𝕤𝕡𝕖𝕖𝕕. 𝕡𝕠𝕨𝕖𝕣𝕖𝕕 . 𝕓𝕪 ᴏʙᴇᴅᴛᴇᴄʜ |*  
 ╰─➤ *𝙃𝙚𝙧𝙚 𝙖𝙧𝙚 𝙣𝙚𝙬 𝙬𝙝𝙖𝙩𝙨𝙖𝙥𝙥 𝙨𝙞𝙙𝙚𝙠𝙞𝙘𝙠!*
 
