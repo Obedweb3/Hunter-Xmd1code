@@ -122,12 +122,12 @@ const port = process.env.PORT || 9090;
 
 ╭──〔 🔗 Qᴜɪᴄᴋ ʟɪɴᴋ 〕  
 ├─ 📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ:  
-│   Click [𝙃𝙚𝙧𝙚](https://whatsapp.com/channel/0029VbAKbSjBA1ep4NkKGd1Y) to join!  
-├─ ⭐ *𝙂𝙞𝙫𝙚 𝙪𝙨 𝙨𝙩𝙖𝙧 𝙖𝙣𝙙 𝙛𝙤𝙧𝙠:*  
-│   𝙎𝙩𝙖𝙧 𝙪𝙨 [𝙃𝙚𝙧𝙚](https://github.com/Obedweb/Hunter-Xmd1)!  
+│   ᴄʟɪᴄᴋ [ʜᴇʀᴇ](https://whatsapp.com/channel/0029VbAKbSjBA1ep4NkKGd1Y) to join!  
+├─ ⭐ *ɢɪᴠᴇ ᴜꜱ ꜱᴛᴀʀ ᴀɴᴅ ꜰᴏʀᴋ:*  
+│   ꜱᴛᴀʀ ᴜꜱ [ʜᴇʀᴇ](https://github.com/Obedweb/Hunter-Xmd1)!  
 ╰─🛠️ *Prefix:* \`${prefix}\`
 
-> _© 𝙼𝙰𝙳𝙴 𝙱𝚈 𝙾𝙱𝙴𝙳𝚃𝙴𝙲𝙷 _`;
+> _© ᴍᴀᴅᴇ ʙʏ ᴏʙᴇᴅᴛᴇᴄʜ _`;
     conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/11w56r.jpg` }, caption: up })
   }
   })
