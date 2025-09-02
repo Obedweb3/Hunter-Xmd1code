@@ -1,10 +1,10 @@
 {
-  "name": "DML-MD",
+  "name": "HUNTER-XMD",
   "version": "5.0.0",
-  "description": "A WhatsApp bot Created by Dml",
+  "description": "A WhatsApp bot Created by Obedtech",
   "main": "index.js",
   "scripts": {
-    "start": "pm2-runtime index.js --name DML-MD"
+    "start": "pm2-runtime index.js --name HUNTER-XMD"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "git+https://gitlab.com/amilaKumara/baileys-pmd.git",
