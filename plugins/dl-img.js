@@ -18,7 +18,7 @@ cmd({
 
         await reply(`🔍 Searching images for "${query}"...`);
 
-        const url = `https://apis.davidcyriltech.my.id/googleimage?query=${encodeURIComponent(query)}`;
+        const url = `https://izumiiiiiiii.dpdns.org//googleimage?query=${encodeURIComponent(query)}`;
         const response = await axios.get(url);
 
         // Validate response
