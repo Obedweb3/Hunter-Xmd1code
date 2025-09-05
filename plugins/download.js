@@ -23,7 +23,7 @@ cmd({
       react: { text: "⏳", key: m.key }
     });
 
-    const response = await axios.get(`https://izumiiiiiiii.dpdns.org//instagram?url=${q}`);
+    const response = await axios.get(`https://api-lite.silvatechinc.my.id//instagram?url=${q}`);
     const data = response.data;
 
     if (!data || data.status !== 200 || !data.downloadUrl) {
@@ -66,7 +66,7 @@ cmd({
       react: { text: '⏳', key: m.key }
     });
 
-    const response = await axios.get(`https://www.dark-yasiya-api.site/download/twitter?url=${q}`);
+    const response = await axios.get(`https://api-lite.silvatechinc.my.id/download/twitter?url=${q}`);
     const data = response.data;
 
     if (!data || !data.status || !data.result) {
