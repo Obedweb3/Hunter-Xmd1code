@@ -20,7 +20,7 @@ cmd({
         if (yt.results.length < 1) return reply("No results found!");
         
         let yts = yt.results[0];  
-        let apiUrl = `https://www.dark-yasiya-api.site/download/ytmp4?url=${encodeURIComponent(yts.url)}`;
+        let apiUrl = `https://api.giftedtech.co.ke/api/download/ytmp4?url=${encodeURIComponent(yts.url)}`;
         
         let response = await fetch(apiUrl);
         let data = await response.json();
@@ -72,7 +72,7 @@ cmd({
         if (!yt.results.length) return reply("No results found!");
 
         const song = yt.results[0];
-        const apiUrl = `https://www.dark-yasiya-api.site/youtube/mp3?url=${encodeURIComponent(song.url)}`;
+        const apiUrl = `https://api.giftedtech.co.ke/api/youtube/mp3?url=${encodeURIComponent(song.url)}`;
         
         const res = await fetch(apiUrl);
         const data = await res.json();
