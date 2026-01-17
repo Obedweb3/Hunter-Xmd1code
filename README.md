@@ -42,7 +42,7 @@
 
 ## 🖥️ ONE-TAP DEPLOYMENT
 
-[![Deploy Web](https://img.shields.io/badge/DEPLOYING-WEB-h?color=red&style=for-the-badge&logo=heroku)](https://hunter-xmd-deploying-web.vercel.app)
+[![Deploy Web](https://img.shields.io/badge/DEPLOYING-WEB-h?color=red&style=for-the-badge&logo=heroku)](https://dashboard.heroku.com/new?template=https://github.com/Obedweb3/Hunter-Xmd1code)
 
 **Follow the Developer:**  
 [![Follow Me](https://img.shields.io/badge/FOLLOW-ME-h?color=purple&style=for-the-badge&logo=github)](https://github.com/Obedweb)
