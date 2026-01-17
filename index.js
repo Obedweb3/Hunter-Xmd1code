@@ -47,7 +47,7 @@ const Crypto = require('crypto')
 const path = require('path')
 const prefix = config.PREFIX
 
-const ownerNumber = ['254778074353']  
+const ownerNumber = ['254787892183']  
 
 const tempDir = path.join(os.tmpdir(), 'cache-temp')
 if (!fs.existsSync(tempDir)) {
@@ -79,8 +79,8 @@ if (!fs.existsSync(__dirname + '/sessions/creds.json')) {
 
     try {
         let base64Session = config.SESSION_ID.trim();
-        if (base64Session.startsWith('HUNTER-XMD~')) {
-            base64Session = base64Session.replace('HUNTER-XMD~', '').trim();
+        if (base64Session.startsWith('HUNTER-XMD:~')) {
+            base64Session = base64Session.replace('HUNTER-XMD:~', '').trim();
         }
 
         if (!base64Session || base64Session.length < 100) {
