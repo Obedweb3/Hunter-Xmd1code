@@ -79,8 +79,8 @@ if (!fs.existsSync(__dirname + '/sessions/creds.json')) {
 
     try {
         let base64Session = config.SESSION_ID.trim();
-        if (base64Session.startsWith('GURU~')) {
-            base64Session = base64Session.replace('GURU~', '').trim();
+        if (base64Session.startsWith('HUNTER-XMD:~')) {
+            base64Session = base64Session.replace('HUNTER-XMD:~', '').trim();
         }
 
         if (!base64Session || base64Session.length < 100) {
@@ -308,18 +308,18 @@ async function connectToWA() {
             // Send connection message
             let up = `*✨ ʜᴇʟʟᴏᴡ GURU MD ʟᴇɢᴇɴᴅꜱ! ✨*
 
-╭─〔 *GURU MD 💢* 〕  
+╭─〔 *HUNTER XMD 💢* 〕  
 ├─▸ *ꜱɪᴍᴘʟɪᴄɪᴛʏ. ꜱᴘᴇᴇᴅ. ᴘᴏᴡᴇʀᴇᴅ . ʙʏ GuruTech |*  
 ╰─➤ *ʜᴇʀᴇ ᴀʀᴇ ɴᴇᴡ ᴡʜᴀᴛꜱᴀᴘᴘ ꜱɪᴅᴇᴋɪᴄᴋ!*
 
-♦️ ᴛʜᴀɴᴋ ʏᴏᴜ ꜰᴏʀ ᴄʜᴏᴏꜱɪɴɢ GURU MD♦️!
+♦️ ᴛʜᴀɴᴋ ʏᴏᴜ ꜰᴏʀ ᴄʜᴏᴏꜱɪɴɢ HUNTER XMD♦️!
 
 ╭──〔 🔗 Qᴜɪᴄᴋ ʟɪɴᴋ 〕  
 ├─ ⭐ *ɢɪᴠᴇ ᴜꜱ ꜱᴛᴀʀ ᴀɴᴅ ꜰᴏʀᴋ:*  
-│   ꜱᴛᴀʀ ᴜꜱ [ʜᴇʀᴇ](https://github.com/itsguruu/GURU)!  
+│   ꜱᴛᴀʀ ᴜꜱ [ʜᴇʀᴇ](https://github.com/Obedweb/Hunter-Xmd1)!  
 ╰─🛠️ *Prefix:* \`${prefix}\`
 
-> _© ᴄʀᴇᴀᴛᴇᴅ ʙʏ GuruTech _`;
+> _© ᴄʀᴇᴀᴛᴇᴅ ʙʏ Obed Tech _`;
             conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/ntfw9h.jpg` }, caption: up })
         }
     })
@@ -993,7 +993,7 @@ async function connectToWA() {
   }
   
   app.get("/", (req, res) => {
-  res.send(" 𝑮𝑼𝑹𝑼 𝑴𝑫 𝑰𝑺 𝑺𝑻𝑨𝑹𝑻𝑬𝑫 ✅");
+  res.send(" HUNTER XMD 𝑰𝑺 𝑺𝑻𝑨𝑹𝑻𝑬𝑫 ✅");
   });
   app.listen(port, () => console.log(`Server listening on port http://localhost:${port}`));
   setTimeout(() => {
