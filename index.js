@@ -320,7 +320,7 @@ async function connectToWA() {
 ╰─🛠️ *Prefix:* \`${prefix}\`
 
 > _© ᴄʀᴇᴀᴛᴇᴅ ʙʏ Obed Tech _`;
-            conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/ntfw9h.jpg` }, caption: up })
+            conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/fetyu7.jpg` }, caption: up })
         }
     })
 
