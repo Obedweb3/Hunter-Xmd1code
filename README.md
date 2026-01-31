@@ -1,10 +1,15 @@
 # 🤖 HUNTERXMD PRO WhatsApp Bot
 
 <p align="center">
-  <video width="320" autoplay loop muted>
-    <source src="https://files.catbox.moe/fetyu7.jpg" type="video/mp4">
-  </video>
+  <img src="PASTE_GIF_LINK_HERE" width="300"/>
 </p>
+
+<p align="center">
+  <a href="PASTE_FULL_VIDEO_LINK_HERE">
+    <img src="https://img.shields.io/badge/WATCH-FULL_INTRO_VIDEO-red?style=for-the-badge&logo=youtube" />
+  </a>
+</p>
+
 
 
 <p align="center">
