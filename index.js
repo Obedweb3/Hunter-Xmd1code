@@ -308,15 +308,15 @@ async function connectToWA() {
             // Send connection message
             let up = `*✨ ʜᴇʟʟᴏᴡ GURU MD ʟᴇɢᴇɴᴅꜱ! ✨*
 
-╭─〔 *HUNTER XMD 💢* 〕  
-├─▸ *ꜱɪᴍᴘʟɪᴄɪᴛʏ. ꜱᴘᴇᴇᴅ. ᴘᴏᴡᴇʀᴇᴅ . ʙʏ GuruTech |*  
-╰─➤ *ʜᴇʀᴇ ᴀʀᴇ ɴᴇᴡ ᴡʜᴀᴛꜱᴀᴘᴘ ꜱɪᴅᴇᴋɪᴄᴋ!*
+╭─〔 *HUNTER XMD PRO💢* 〕  
+├─▸ *simplicity. speed. Powered . By ObedTech |*  
+╰─➤ *here are new whatsapp sidekick!*
 
-♦️ ᴛʜᴀɴᴋ ʏᴏᴜ ꜰᴏʀ ᴄʜᴏᴏꜱɪɴɢ HUNTER XMD♦️!
+♦️ thank you for choosing HUNTER XMD PRO♦️!
 
-╭──〔 🔗 Qᴜɪᴄᴋ ʟɪɴᴋ 〕  
-├─ ⭐ *ɢɪᴠᴇ ᴜꜱ ꜱᴛᴀʀ ᴀɴᴅ ꜰᴏʀᴋ:*  
-│   ꜱᴛᴀʀ ᴜꜱ [ʜᴇʀᴇ](https://github.com/Obedweb/Hunter-Xmd1)!  
+╭──〔 🔗 QUICK ACCESS LINKS 〕  
+├─ ⭐ *give us stars and fork :*  
+│   fork us [here](https://github.com/Obedweb/Hunter-Xmd1)!  
 ╰─🛠️ *Prefix:* \`${prefix}\`
 
 > _© ᴄʀᴇᴀᴛᴇᴅ ʙʏ Obed Tech _`;
@@ -952,7 +952,7 @@ async function connectToWA() {
             for (let i of kon) {
                 list.push({
                     displayName: await conn.getName(i + '@s.whatsapp.net'),
-                    vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${await conn.getName(
+                    vcard: `BEGIN:VCARD\nVERSION:5.1\nN:${await conn.getName(
                         i + '@s.whatsapp.net',
                     )}\nFN:GURU MD\nitem1.TEL;waid=\( {i}: \){i}\nitem1.X-ABLabel:Click here to chat\nitem2.EMAIL;type=INTERNET:gurutech@example.com\nitem2.X-ABLabel:GitHub\nitem3.URL:https://github.com/itsguruu/GURU\nitem3.X-ABLabel:GitHub\nitem4.ADR:;;Nairobi;;;;\nitem4.X-ABLabel:Region\nEND:VCARD`,
                 });
@@ -993,7 +993,7 @@ async function connectToWA() {
   }
   
   app.get("/", (req, res) => {
-  res.send(" HUNTER XMD 𝑰𝑺 𝑺𝑻𝑨𝑹𝑻𝑬𝑫 ✅");
+  res.send(" HUNTER XMD PRO IS STARTED✅");
   });
   app.listen(port, () => console.log(`Server listening on port http://localhost:${port}`));
   setTimeout(() => {
