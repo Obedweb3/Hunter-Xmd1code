@@ -1,8 +1,11 @@
 # 🤖 HUNTERXMD PRO WhatsApp Bot
 
 <p align="center">
-  <img src="https://files.catbox.moe/fetyu7.jpg" width="300" alt="HUNTERXMD PRO Bot Logo"/>
+  <video width="320" autoplay loop muted>
+    <source src="PASTE_YOUR_VIDEO_LINK_HERE.mp4" type="video/mp4">
+  </video>
 </p>
+
 
 <p align="center">
   Powerful • Fast • Multi-Device WhatsApp Bot
