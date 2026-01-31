@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="PASTE_FULL_VIDEO_LINK_HERE">
+  <a href="files.catbox.moe/fetyu7.jpg">
     <img src="https://img.shields.io/badge/WATCH-FULL_INTRO_VIDEO-red?style=for-the-badge&logo=youtube" />
   </a>
 </p>
