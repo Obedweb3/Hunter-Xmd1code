@@ -1,7 +1,7 @@
 # 🤖 HUNTERXMD PRO WhatsApp Bot
 
 <p align="center">
-  <img src="PASTE_YOUR_IMAGE_LINK_HERE" width="300" alt="HUNTERXMD PRO Bot Logo"/>
+  <img src="https://files.catbox.moe/fetyu7.jpg" width="300" alt="HUNTERXMD PRO Bot Logo"/>
 </p>
 
 
