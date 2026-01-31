@@ -4,7 +4,7 @@
   "description": "A WhatsApp Bot Created Obed Tech",
   "main": "index.js",
   "scripts": {
-    "start": "pm2 start index.js --deep-monitoring --attach --name TOHID_MD",
+    "start": "pm2 start index.js --deep-monitoring --attach --name HUNTER-XMD PRO",
     "stop": "pm2 stop HUNTER_XMD",
     "restart": "pm2 restart HUNTER_XMD"
   },
