@@ -1,7 +1,7 @@
 # 🤖 HUNTERXMD PRO WhatsApp Bot
 
 <p align="center">
-  <img src="PASTE_GIF_LINK_HERE" width="300"/>
+  <img https://files.catbox.moe/fetyu7.jpg" width="300"/>
 </p>
 
 <p align="center">
