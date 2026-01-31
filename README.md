@@ -2,7 +2,7 @@
 
 <p align="center">
   <video width="320" autoplay loop muted>
-    <source src="PASTE_YOUR_VIDEO_LINK_HERE.mp4" type="video/mp4">
+    <source src="https://files.catbox.moe/fetyu7.jpg.mp4" type="video/mp4">
   </video>
 </p>
 
