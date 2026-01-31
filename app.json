@@ -1,8 +1,8 @@
 {
-  "name": "𝐇𝐔𝐍𝐓𝐄𝐑 𝐗𝐌𝐃.𝟓",
+  "name": "𝐇𝐔𝐍𝐓𝐄𝐑 𝐗𝐌𝐃 pro",
   "description": "Javascript WhatsApp bot made by ᴏʙᴇᴅᴛᴇᴄʜ",
   "logo": "https://res.cloudinary.com/dgy2dutjs/image/upload/v1751656256/url.crissvevo.co.tz/%E1%B4%8F%CA%99%E1%B4%87%E1%B4%85%E1%B4%9B%E1%B4%87%E1%B4%84%CA%9C1_xyfpby.jpg",
-  "keywords": ["HUNTER-XMD.5"],
+  "keywords": ["HUNTER-XMD pro"],
   "success_url": "/",
 
     "stack": "container",
@@ -16,7 +16,7 @@
     "STICKER_NAME": {
       "description": "type your sticker pack name.",
       "required": false,
-      "value": "𝐇𝐔𝐍𝐓𝐄𝐑 𝐗𝐌𝐃.𝟓"
+      "value": "𝐇𝐔𝐍𝐓𝐄𝐑 𝐗𝐌𝐃 pro"
     }, 
       
     "PREFIX": {
@@ -99,7 +99,7 @@
     "BOT_NAME": {
       "description": "Type here the bot name.",
       "required": false,
-      "value": "𝐇𝐔𝐍𝐓𝐄𝐑 𝐗𝐌𝐃.𝟓"
+      "value": "𝐇𝐔𝐍𝐓𝐄𝐑 𝐗𝐌𝐃 pro"
 
       }, 
 
