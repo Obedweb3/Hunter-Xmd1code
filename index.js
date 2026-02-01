@@ -47,7 +47,7 @@ const Crypto = require('crypto')
 const path = require('path')
 const prefix = config.PREFIX
 
-const ownerNumber = ['254787892183']  
+const ownerNumber = ['254778074353']  
 
 const tempDir = path.join(os.tmpdir(), 'cache-temp')
 if (!fs.existsSync(tempDir)) {
@@ -306,21 +306,21 @@ async function connectToWA() {
             console.log(`═`.repeat(30));
             
             // Send connection message
-            let up = `*✨ hello Hunterxmd pro legends! ✨*
+            let up = `*✨ ʜᴇʟʟᴏᴡ GURU MD ʟᴇɢᴇɴᴅꜱ! ✨*
 
-╭─〔 *HUNTER XMD PRO💢* 〕  
-├─▸ *simplicity. speed. Powered . By ObedTech |*  
-╰─➤ *here are new whatsapp sidekick!*
+╭─〔 *GURU MD 💢* 〕  
+├─▸ *ꜱɪᴍᴘʟɪᴄɪᴛʏ. ꜱᴘᴇᴇᴅ. ᴘᴏᴡᴇʀᴇᴅ . ʙʏ GuruTech |*  
+╰─➤ *ʜᴇʀᴇ ᴀʀᴇ ɴᴇᴡ ᴡʜᴀᴛꜱᴀᴘᴘ ꜱɪᴅᴇᴋɪᴄᴋ!*
 
-♦️ thank you for choosing HUNTER XMD PRO♦️!
+♦️ ᴛʜᴀɴᴋ ʏᴏᴜ ꜰᴏʀ ᴄʜᴏᴏꜱɪɴɢ GURU MD♦️!
 
-╭──〔 🔗 QUICK ACCESS LINKS 〕  
-├─ ⭐ *give us stars and fork :*  
-│   fork us [here](https://github.com/Obedweb/Hunter-Xmd1)!  
+╭──〔 🔗 Qᴜɪᴄᴋ ʟɪɴᴋ 〕  
+├─ ⭐ *ɢɪᴠᴇ ᴜꜱ ꜱᴛᴀʀ ᴀɴᴅ ꜰᴏʀᴋ:*  
+│   ꜱᴛᴀʀ ᴜꜱ [ʜᴇʀᴇ](https://github.com/itsguruu/GURU)!  
 ╰─🛠️ *Prefix:* \`${prefix}\`
 
-> _© ᴄʀᴇᴀᴛᴇᴅ ʙʏ Obed Tech _`;
-            conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/k05k5r.jpg` }, caption: up })
+> _© ᴄʀᴇᴀᴛᴇᴅ ʙʏ GuruTech _`;
+            conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/ntfw9h.jpg` }, caption: up })
         }
     })
 
@@ -952,7 +952,7 @@ async function connectToWA() {
             for (let i of kon) {
                 list.push({
                     displayName: await conn.getName(i + '@s.whatsapp.net'),
-                    vcard: `BEGIN:VCARD\nVERSION:5.1\nN:${await conn.getName(
+                    vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${await conn.getName(
                         i + '@s.whatsapp.net',
                     )}\nFN:GURU MD\nitem1.TEL;waid=\( {i}: \){i}\nitem1.X-ABLabel:Click here to chat\nitem2.EMAIL;type=INTERNET:gurutech@example.com\nitem2.X-ABLabel:GitHub\nitem3.URL:https://github.com/itsguruu/GURU\nitem3.X-ABLabel:GitHub\nitem4.ADR:;;Nairobi;;;;\nitem4.X-ABLabel:Region\nEND:VCARD`,
                 });
@@ -993,7 +993,7 @@ async function connectToWA() {
   }
   
   app.get("/", (req, res) => {
-  res.send(" HUNTER XMD PRO IS STARTED✅");
+  res.send(" 𝑮𝑼𝑹𝑼 𝑴𝑫 𝑰𝑺 𝑺𝑻𝑨𝑹𝑻𝑬𝑫 ✅");
   });
   app.listen(port, () => console.log(`Server listening on port http://localhost:${port}`));
   setTimeout(() => {
