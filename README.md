@@ -43,7 +43,7 @@
   <img src="https://img.shields.io/badge/DEPLOY_TO-RENDER-purple?style=for-the-badge&logo=render" />
 </a>
 
-<a href="https://dashboard.heroku.com/new?template=https://github.com/Obedweb/Hunter-Xmd1/tree/main">
+<a href="https://dashboard.heroku.com/new?template=https://github.com/Obedweb3/Hunter-Xmd1code/tree/main">
   <img src="https://img.shields.io/badge/DEPLOY_TO-HEROKU-430098?style=for-the-badge&logo=heroku&logoColor=white" />
 </a>
 
