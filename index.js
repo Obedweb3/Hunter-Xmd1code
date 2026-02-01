@@ -47,7 +47,7 @@ const Crypto = require('crypto')
 const path = require('path')
 const prefix = config.PREFIX
 
-const ownerNumber = ['254778074353']  
+const ownerNumber = ['254787892183']  
 
 const tempDir = path.join(os.tmpdir(), 'cache-temp')
 if (!fs.existsSync(tempDir)) {
@@ -306,7 +306,7 @@ async function connectToWA() {
             console.log(`═`.repeat(30));
             
             // Send connection message
-            let up = `*✨ ʜᴇʟʟᴏᴡ GURU MD ʟᴇɢᴇɴᴅꜱ! ✨*
+            let up = `*✨ hello Hunterxmd pro legends! ✨*
 
 ╭─〔 *HUNTER XMD PRO💢* 〕  
 ├─▸ *simplicity. speed. Powered . By ObedTech |*  
@@ -320,7 +320,7 @@ async function connectToWA() {
 ╰─🛠️ *Prefix:* \`${prefix}\`
 
 > _© ᴄʀᴇᴀᴛᴇᴅ ʙʏ Obed Tech _`;
-            conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/fetyu7.jpg` }, caption: up })
+            conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/k05k5r.jpg` }, caption: up })
         }
     })
 
