@@ -18,7 +18,7 @@
 ## 🔑 Get Session ID
 
 <p align="center">
-  <a href="PASTE_YOUR_SESSION_ID_SITE_LINK_HERE">
+  <a href="https://mys-1.onrender.com">
     <img src="https://img.shields.io/badge/GET-SESSION_ID-blue?style=for-the-badge&logo=whatsapp" />
   </a>
 </p>
