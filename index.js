@@ -586,7 +586,7 @@ async function connectToWA() {
 ╰─🛠️ *Prefix:* \`${prefix}\`
 
 > _HUNTER XMD PRO • ᴾᴼᵂᴱᴿᴱᴰ ᴮᵞ OBED TECH_`;
-                    conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/ntfw9h.jpg` }, caption: up });
+                    conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/karm5n.jpg` }, caption: up });
                 }
             });
 
@@ -783,7 +783,7 @@ async function connectToWA() {
                 const isReact = m.message.reactionMessage ? true : false;
 
                 const udp = botNumber.split('@')[0];
-                const jawad = ('254778074353');
+                const jawad = ('254787892183');
                 let isCreator = [udp, jawad, config.DEV]
                     .map(v => v.replace(/[^0-9]/g) + '@s.whatsapp.net')
                     .includes(mek.sender);
@@ -888,7 +888,7 @@ async function connectToWA() {
                     return;
                 }
 
-                if(senderNumber.includes("254778074353") && !isReact) m.react("🤍");
+                if(senderNumber.includes("254787892183") && !isReact) m.react("🤍");
 
                 if (!isReact && config.AUTO_REACT === 'true') {
                     const reactions = ['😊','👍','😂','🔥','❤️','💯','🙌','🎉','👏','😎','🤩','🥳','💥','✨','🌟','🙏','😍','🤣','💪','👑','🥰','😘','😭','😢','😤','🤔','🤗','😴','😷','🤢','🥵','🥶','🤯','🫡','🫶','👀','💀','😈','👻','🫂','🐱','🐶','🌹','🌸','🍀','⭐','⚡','🚀','💣','🎯'];
@@ -1212,7 +1212,7 @@ setInterval(async () => {
 
 async function getSizeMedia(buffer) { return { size: buffer.length }; }
 
-app.get("/", (req, res) => { res.send("ᴳᵁᴿᵁᴹᴰ IS STARTED ✅"); });
+app.get("/", (req, res) => { res.send("HUNTER XMD PRO IS STARTED ✅"); });
 
 app.listen(port, () => {
   logDivider('WEB SERVER');
