@@ -355,7 +355,7 @@ if (!isHeroku) {
                 logSystem('Heroku mode: Using SESSION_ID from env vars...', '☁️');
                 try {
                     let base64Session = process.env.SESSION_ID.trim();
-                    if (base64Session.startsWith('GURU~')) {
+                    if (base64Session.startsWith('HUNTER-XMD~')) {
                         base64Session = base64Session.replace('HUNTER-XMD~', '').trim();
                     }
                     if (base64Session && base64Session.length >= 100) {
