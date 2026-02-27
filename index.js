@@ -43,6 +43,9 @@ const colors = {
 };
 
 // Simple banner without external dependencies
+/**
+ * Prints a styled banner to the console.
+ */
 function printBanner() {
   console.log(chalk.hex(colors.primary).bold('╔══════════════════════════════════════════════════════════╗'));
   console.log(chalk.hex(colors.success).bold('║           ᴳᵁᴿᵁᴹᴰ • ULTIMATE WHATSAPP BOT • V5.1PRO           ║'));
@@ -51,27 +54,45 @@ function printBanner() {
 }
 
 // Enhanced Log Functions (simplified)
+/**
+ * Logs a success message with an optional emoji.
+ */
 function logSuccess(message, emoji = '✅') {
   console.log(`${emoji} ${chalk.hex(colors.success).bold(message)}`);
 }
 
+/**
+ * Logs an error message with an optional emoji.
+ */
 function logError(message, emoji = '❌') {
   console.log(`${emoji} ${chalk.hex(colors.error).bold(message)}`);
 }
 
+/**
+ * Logs a warning message with an optional emoji.
+ */
 function logWarning(message, emoji = '⚠️') {
   console.log(`${emoji} ${chalk.hex(colors.warning).bold(message)}`);
 }
 
+/**
+ * Logs an informational message with an optional emoji.
+ */
 function logInfo(message, emoji = 'ℹ️') {
   console.log(`${emoji} ${chalk.hex(colors.info).bold(message)}`);
 }
 
+/**
+ * Logs a message to the console with an optional emoji.
+ */
 function logSystem(message, emoji = '⚙️') {
   console.log(`${emoji} ${chalk.hex(colors.system).bold(message)}`);
 }
 
 // Beautiful Divider
+/**
+ * Logs a styled divider with optional text.
+ */
 function logDivider(text = '') {
   const dividerLength = 60;
   const textLength = text.length;
@@ -87,6 +108,13 @@ function logDivider(text = '') {
 }
 
 // Message Log with timestamp and color
+/**
+ * Logs a message with a timestamp, type, sender, content, and extra information.
+ * @param {string} type - The type of the message (e.g., RECEIVED, SENT).
+ * @param {string} from - The sender of the message.
+ * @param {string} [content=''] - The main content of the message.
+ * @param {string} [extra=''] - Additional information to log.
+ */
 function logMessage(type, from, content = '', extra = '') {
   const timestamp = chalk.gray(`[${new Date().toLocaleTimeString()}]`);
   const types = {
@@ -106,6 +134,9 @@ function logMessage(type, from, content = '', extra = '') {
 }
 
 // Connection Status Log
+/**
+ * Logs the connection status with an icon and color.
+ */
 function logConnection(status, details = '') {
   const statusIcons = {
     'CONNECTING': { icon: '🔄', color: colors.warning },
@@ -121,6 +152,9 @@ function logConnection(status, details = '') {
 }
 
 // Memory Usage Log - FIXED VERSION (no broken strings, no invalid escapes)
+/**
+ * Logs the current memory usage of the process.
+ */
 function logMemory() {
   const used = process.memoryUsage();
   const rss = Math.round(used.rss / 1024 / 1024);
@@ -135,6 +169,9 @@ function logMemory() {
 }
 
 // Plugin Loader Log
+/**
+ * Logs the plugin's name, version, and status with an icon.
+ */
 function logPlugin(name, version, status = 'LOADED') {
   const statusIcons = {
     'LOADED': { icon: '✅', color: colors.success },
@@ -151,6 +188,9 @@ function logPlugin(name, version, status = 'LOADED') {
 }
 
 // Command Execution Log
+/**
+ * Logs a command execution with user and status.
+ */
 function logCommand(user, command, success = true) {
   const userDisplay = chalk.hex(colors.system)(user);
   const commandDisplay = chalk.hex(colors.info).bold(command);
@@ -160,6 +200,9 @@ function logCommand(user, command, success = true) {
 }
 
 // Status Update Log
+/**
+ * Logs a status update with an action, target, and optional details.
+ */
 function logStatusUpdate(action, target, details = '') {
   const actions = {
     'VIEWED': { icon: '👁️', color: colors.success },
@@ -176,6 +219,9 @@ function logStatusUpdate(action, target, details = '') {
 }
 
 // Media Log
+/**
+ * Logs media information including type, size, and source.
+ */
 function logMedia(type, size, from = '') {
   const types = {
     'IMAGE': { icon: '🖼️', color: colors.success },
@@ -229,6 +275,9 @@ function logPerformance(operation, timeMs) {
 }
 
 // Initialize logging system
+/**
+ * Initializes logging for the system.
+ */
 function initLogging() {
   console.clear();
   printBanner();
@@ -280,6 +329,9 @@ const ownerNumber = ['254778074353@s.whatsapp.net'];
 const AUTO_RESTART_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
 let restartTimer = null;
 
+/**
+ * Initiates an auto-restart of the bot.
+ */
 function restartBot() {
     logWarning('🔄 AUTO-RESTART INITIATED', '🔄');
     logSystem(`Restarting after ${AUTO_RESTART_INTERVAL/3600000} hours...`, '⏰');
@@ -287,6 +339,9 @@ function restartBot() {
     process.exit(0);
 }
 
+/**
+ * Schedules an automatic restart of the bot after a specified interval.
+ */
 function scheduleAutoRestart() {
     if (restartTimer) clearTimeout(restartTimer);
     restartTimer = setTimeout(restartBot, AUTO_RESTART_INTERVAL);
@@ -312,6 +367,13 @@ if (!fs.existsSync(tempDir)) {
     fs.mkdirSync(tempDir, { recursive: true });
 }
 
+/**
+ * Cleans up temporary files in the specified directory.
+ *
+ * The function reads the contents of the tempDir directory and logs a warning if an error occurs during reading.
+ * If there are files present, it attempts to delete each file using unlink, logging a warning for any failures.
+ * Finally, it logs a success message indicating the number of files cleaned up once all deletion promises are settled.
+ */
 const clearTempDir = () => {
     fs.readdir(tempDir, (err, files) => {
         if (err) {
@@ -401,6 +463,18 @@ global.AUTO_SAVE_STATUS = false;
 
 const autoReplyCooldown = new Map();
 
+/**
+ * Sends a tagged reply message to a specified recipient.
+ *
+ * The function checks if tagging is enabled in the configuration. If not, it sends a message with a default branded text.
+ * If tagging is enabled, it constructs the final message by appending or prepending the tag based on the configured tag position
+ * and sends it to the specified recipient. The optional quoted parameter allows for referencing a previous message.
+ *
+ * @param {Object} conn - The connection object used to send the message.
+ * @param {string} from - The recipient's identifier to whom the message will be sent.
+ * @param {string} teks - The main text content of the message.
+ * @param {Object|null} [quoted=null] - An optional message object to quote in the reply.
+ */
 const taggedReply = (conn, from, teks, quoted = null) => {
     if (!config.ENABLE_TAGGING) {
         const gurumdBrandedText = `ᴳᵁᴿᵁᴹᴰ\n\n${teks}`;
@@ -411,6 +485,17 @@ const taggedReply = (conn, from, teks, quoted = null) => {
     conn.sendMessage(from, { text: finalText }, { quoted: quoted || undefined });
 };
 
+/**
+ * Handle status updates based on global configurations for viewing, reacting, and saving.
+ *
+ * The function checks the global flags for AUTO_VIEW_STATUS, AUTO_REACT_STATUS, and AUTO_SAVE_STATUS.
+ * It creates promises for each action: viewing the status with a random delay, reacting with a random emoji,
+ * and saving the status media to a file. Each action is logged, and errors are caught and logged accordingly.
+ *
+ * @param conn - The connection object used to interact with the messaging service.
+ * @param msg - The message object containing the status update details.
+ * @returns {Promise<void>} A promise that resolves when all status update actions are completed.
+ */
 async function handleStatusUpdates(conn, msg) {
     const promises = [];
     if (global.AUTO_VIEW_STATUS) {
@@ -465,6 +550,14 @@ setInterval(() => logMemory(), 60 * 60 * 1000);
 if (global.gc) setInterval(() => { try { global.gc(); logSystem('Garbage collection triggered', '🧹'); } catch (e) {} }, 30 * 60 * 1000);
 
 let pluginsLoaded = false;
+/**
+ * Loads and initializes all JavaScript plugins from the "./plugins/" directory.
+ *
+ * This function reads the contents of the "./plugins/" directory, filters for JavaScript files,
+ * and attempts to require each plugin. It logs the loading process, including successes and failures,
+ * and updates the global state to indicate that plugins have been loaded. The total number of successfully
+ * loaded plugins is also logged.
+ */
 async function loadPlugins() {
     logDivider('PLUGIN LOADING');
     logSystem('Installing Plugins...', '🧬');
@@ -511,6 +604,14 @@ async function autoFollowChannels(conn) {
     logDivider();
 }
 
+/**
+ * Establish a connection to WhatsApp using the Baileys library.
+ *
+ * This function initializes the connection process, handling retries and logging various connection states. It sets up event listeners for connection updates, message handling, and deleted message detection. The function also manages auto-join for groups, plugin loading, and command processing based on the received messages.
+ *
+ * @returns {Promise<void>} A promise that resolves when the connection is successfully established.
+ * @throws {Error} If the connection fails after the maximum number of retries.
+ */
 async function connectToWA() {
     logDivider('WHATSAPP CONNECTION');
     logConnection('CONNECTING', 'Initializing...');
@@ -518,6 +619,14 @@ async function connectToWA() {
     let retryCount = 0;
     const maxRetries = 5;
     
+    /**
+     * Attempt to establish a connection to the WhatsApp server.
+     *
+     * This asynchronous function initializes the connection by setting up authentication state, fetching the latest Baileys version, and configuring the socket connection. It handles various connection updates, including QR code generation, connection status changes, and message handling. The function also implements auto-restart and anti-delete features, ensuring robust interaction with the WhatsApp API.
+     *
+     * @returns {Promise<void>} A promise that resolves when the connection is successfully established or retries if it fails.
+     * @throws {Error} If the connection fails after the maximum number of retries.
+     */
     async function attemptConnection() {
         try {
             const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/sessions/');
@@ -1210,6 +1319,9 @@ setInterval(async () => {
     catch (error) { logError(`Scheduled auto-follow error: ${error.message}`, '❌'); }
 }, 60 * 60 * 1000);
 
+/**
+ * Returns the size of the given buffer.
+ */
 async function getSizeMedia(buffer) { return { size: buffer.length }; }
 
 app.get("/", (req, res) => { res.send("ᴳᵁᴿᵁᴹᴰ IS STARTED ✅"); });
