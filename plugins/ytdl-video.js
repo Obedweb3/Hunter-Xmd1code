@@ -114,6 +114,9 @@ cmd({
 });
 
 // Helper: Send audio with thumbnail
+/**
+ * Sends an audio file along with a thumbnail and caption.
+ */
 async function sendAudio(conn, from, mek, url, title, thumbnail) {
     // Send thumbnail with caption
     await conn.sendMessage(from, {
@@ -159,6 +162,15 @@ async function fetchFromY2Mate(videoUrl) {
 }
 
 // API 2: SaveFrom style (Alternative)
+/**
+ * Fetch the download URL for a video from SaveFrom.
+ *
+ * This function makes an asynchronous request to the SaveFrom API using the provided videoUrl. It sets the appropriate User-Agent header and expects a JSON response containing the download URL. If the response does not contain a valid URL, an error is thrown. Any errors encountered during the fetch process are re-thrown for handling by the caller.
+ *
+ * @param videoUrl - The URL of the video to fetch the download link for.
+ * @returns The download URL for the video in MP3 format.
+ * @throws Error If no download URL is returned from SaveFrom or if an error occurs during the fetch.
+ */
 async function fetchFromSaveFrom(videoUrl) {
     try {
         const response = await fetch(`https://api.savefrom.net/api/convert?url=${encodeURIComponent(videoUrl)}&format=mp3`, {
@@ -179,6 +191,17 @@ async function fetchFromSaveFrom(videoUrl) {
 }
 
 // API 3: YTMP3.cc (Another alternative)
+/**
+ * Fetch the download URL for an MP3 file from YTMP3 based on the provided video URL.
+ *
+ * The function makes an asynchronous request to the YTMP3 API, passing the video URL as a parameter.
+ * It checks the response for a valid download URL and returns it. If the download URL is not present,
+ * it throws an error indicating the absence of a download URL.
+ *
+ * @param videoUrl - The URL of the video to be converted to MP3.
+ * @returns The download URL for the converted MP3 file.
+ * @throws Error If there is no download URL in the response or if the fetch operation fails.
+ */
 async function fetchFromYTMP3(videoUrl) {
     try {
         const response = await fetch(`https://d.ymcdn.org/api/v1/convert?url=${encodeURIComponent(videoUrl)}&format=mp3`, {
