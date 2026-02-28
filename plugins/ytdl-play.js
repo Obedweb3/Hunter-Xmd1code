@@ -1,6 +1,5 @@
 const config = require('../config');
 const { cmd } = require('../command');
-const yts = require('yt-search');
 const fetch = require('node-fetch');
 
 cmd({
@@ -15,83 +14,187 @@ cmd({
     try {
         if (!q) return await reply("❌ Please provide a song name or YouTube URL!\n\nExample: `.yt2 Alan Walker Faded`");
 
-        let videoUrl, title, thumbnail, duration, author;
-        
+        let videoUrl, title, thumbnail, duration, author, videoId;
+
         // Check if input is URL or search query
         const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
         
         if (youtubeRegex.test(q)) {
+            // It's a URL
             videoUrl = q;
+            videoId = q.match(youtubeRegex)[1];
+            
+            // Get info from Rebix API search using video ID
             try {
-                const videoId = q.match(youtubeRegex)[1];
-                const videoInfo = await yts({ videoId: videoId });
-                title = videoInfo.title;
-                thumbnail = videoInfo.thumbnail;
-                duration = videoInfo.timestamp;
-                author = videoInfo.author.name;
+                const searchRes = await fetch(`https://api-rebix.zone.id/api/yts?q=${encodeURIComponent(videoId)}`);
+                const searchData = await searchRes.json();
+                
+                if (searchData.status && searchData.result && searchData.result.length > 0) {
+                    const video = searchData.result.find(v => v.videoId === videoId) || searchData.result[0];
+                    title = video.title;
+                    thumbnail = video.thumbnail;
+                    duration = video.timestamp;
+                    author = video.author?.name;
+                } else {
+                    title = "YouTube Audio";
+                }
             } catch (e) {
                 title = "YouTube Audio";
             }
         } else {
-            // Search YouTube
+            // Search using Rebix API
             await reply("🔍 Searching for: " + q);
-            const search = await yts(q);
-            if (!search.videos.length) return await reply("❌ No results found! Try different keywords.");
             
-            const video = search.videos[0];
-            videoUrl = video.url;
-            title = video.title;
-            thumbnail = video.thumbnail;
-            duration = video.timestamp;
-            author = video.author.name;
+            try {
+                const searchRes = await fetch(`https://api-rebix.zone.id/api/yts?q=${encodeURIComponent(q)}`);
+                const searchData = await searchRes.json();
+                
+                if (!searchData.status || !searchData.result || searchData.result.length === 0) {
+                    return await reply("❌ No results found! Try different keywords.");
+                }
+                
+                const video = searchData.result[0];
+                videoUrl = video.url;
+                videoId = video.videoId;
+                title = video.title;
+                thumbnail = video.thumbnail;
+                duration = video.timestamp;
+                author = video.author?.name;
+                
+            } catch (searchError) {
+                console.error("Rebix search error:", searchError);
+                return await reply("❌ Search failed. Please try with a direct YouTube URL instead.");
+            }
         }
 
-        await reply("⏳ Downloading audio... Please wait.");
+        await reply(`⏳ Downloading: *${title}*\n🎤 ${author || 'Unknown'}\n⏱️ ${duration || 'Unknown'}`);
 
-        // Use the provided API endpoint
-        const apiUrl = `https://api-rebix.zone.id/api/yta?url=${encodeURIComponent(videoUrl)}`;
+        // Try multiple download APIs since Rebix yta might be down
         
-        const response = await fetch(apiUrl, {
-            method: 'GET',
+        // Method 1: Try Y2Mate API (Most reliable)
+        try {
+            const downloadUrl = await fetchFromY2Mate(videoUrl);
+            if (downloadUrl) {
+                await sendAudio(conn, from, mek, downloadUrl, title, thumbnail);
+                return await reply(`✅ *${title}* downloaded successfully!`);
+            }
+        } catch (e) {
+            console.log("Y2Mate failed:", e.message);
+        }
+
+        // Method 2: Try SaveFrom-style API
+        try {
+            const downloadUrl = await fetchFromSaveFrom(videoUrl);
+            if (downloadUrl) {
+                await sendAudio(conn, from, mek, downloadUrl, title, thumbnail);
+                return await reply(`✅ *${title}* downloaded successfully!`);
+            }
+        } catch (e) {
+            console.log("SaveFrom failed:", e.message);
+        }
+
+        // Method 3: Try YTMP3.cc API
+        try {
+            const downloadUrl = await fetchFromYTMP3(videoUrl);
+            if (downloadUrl) {
+                await sendAudio(conn, from, mek, downloadUrl, title, thumbnail);
+                return await reply(`✅ *${title}* downloaded successfully!`);
+            }
+        } catch (e) {
+            console.log("YTMP3 failed:", e.message);
+        }
+
+        // If all fail
+        await reply("❌ Download failed. The video might be:\n• Age-restricted\n• Copyright protected\n• Too long (try videos under 10 mins)\n\nTry a different video or use `.play` command instead.");
+
+    } catch (error) {
+        console.error('YT2 Error:', error);
+        await reply(`❌ Error: ${error.message}`);
+    }
+});
+
+// Helper: Send audio with thumbnail
+async function sendAudio(conn, from, mek, url, title, thumbnail) {
+    // Send thumbnail with caption
+    await conn.sendMessage(from, {
+        image: { url: thumbnail },
+        caption: `🎵 *${title}*\n\n⬇️ Sending audio file...`
+    }, { quoted: mek });
+
+    // Send audio file
+    await conn.sendMessage(from, {
+        audio: { url: url },
+        mimetype: 'audio/mpeg',
+        ptt: false,
+        fileName: `${title}.mp3`
+    }, { quoted: mek });
+}
+
+// API 1: Y2Mate (Working)
+async function fetchFromY2Mate(videoUrl) {
+    try {
+        // Using y2mate.sx API
+        const response = await fetch('https://y2mate.sx/api/convert', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            },
+            body: JSON.stringify({
+                url: videoUrl,
+                format: 'mp3',
+                quality: '128'
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data && (data.downloadUrl || data.dlink)) {
+            return data.downloadUrl || data.dlink;
+        }
+        throw new Error('No download URL from Y2Mate');
+    } catch (e) {
+        throw e;
+    }
+}
+
+// API 2: SaveFrom style (Alternative)
+async function fetchFromSaveFrom(videoUrl) {
+    try {
+        const response = await fetch(`https://api.savefrom.net/api/convert?url=${encodeURIComponent(videoUrl)}&format=mp3`, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             }
         });
-
-        if (!response.ok) {
-            throw new Error(`API returned status ${response.status}`);
-        }
-
+        
         const data = await response.json();
-
-        // Check if API returned success and has download URL
-        if (!data || !data.status === 'success' || !data.result?.downloadUrl) {
-            return await reply("❌ Failed to fetch download link. The API might be busy or the video is restricted.");
+        
+        if (data && data.url) {
+            return data.url;
         }
-
-        const downloadUrl = data.result.downloadUrl;
-        const fileSize = data.result.fileSize || 'Unknown';
-        const quality = data.result.quality || '128kbps';
-
-        // Send thumbnail with info
-        await conn.sendMessage(from, {
-            image: { url: thumbnail },
-            caption: `🎵 *${title}*\n👤 ${author || 'Unknown'}\n⏱️ ${duration || 'Unknown'}\n📦 ${fileSize}\n🎧 Quality: ${quality}\n\n⬇️ Downloading...`
-        }, { quoted: mek });
-
-        // Send the audio file
-        await conn.sendMessage(from, {
-            audio: { url: downloadUrl },
-            mimetype: 'audio/mpeg',
-            ptt: false,
-            fileName: `${title}.mp3`,
-            caption: `✅ *${title}*`
-        }, { quoted: mek });
-
-        await reply(`✅ *${title}* downloaded successfully!\n📦 Size: ${fileSize}`);
-
-    } catch (error) {
-        console.error('YT2 Error:', error);
-        await reply(`❌ Error: ${error.message}\n\nPlease try again later or use a different video.`);
+        throw new Error('No download URL from SaveFrom');
+    } catch (e) {
+        throw e;
     }
-});
+}
+
+// API 3: YTMP3.cc (Another alternative)
+async function fetchFromYTMP3(videoUrl) {
+    try {
+        const response = await fetch(`https://d.ymcdn.org/api/v1/convert?url=${encodeURIComponent(videoUrl)}&format=mp3`, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Referer': 'https://y2mate.com/'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data && data.download_url) {
+            return data.download_url;
+        }
+        throw new Error('No download URL from YTMP3');
+    } catch (e) {
+        throw e;
+    }
+}
