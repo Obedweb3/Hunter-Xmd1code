@@ -1,6 +1,7 @@
 const config = require('../config');
 const { cmd } = require('../command');
 const yts = require('yt-search');
+const fetch = require('node-fetch'); // Add this import
 
 cmd({
     pattern: "yt2",
@@ -16,10 +17,13 @@ cmd({
 
         let videoUrl, title;
         
-        // Check if it's a URL
-        if (q.match(/(youtube\.com|youtu\.be)/)) {
+        // Check if it's a URL (improved regex)
+        const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+        
+        if (youtubeRegex.test(q)) {
             videoUrl = q;
-            const videoInfo = await yts({ videoId: q.split(/[=/]/).pop() });
+            const videoId = q.match(youtubeRegex)[1];
+            const videoInfo = await yts({ videoId: videoId });
             title = videoInfo.title;
         } else {
             // Search YouTube
@@ -31,12 +35,20 @@ cmd({
 
         await reply("⏳ Downloading audio...");
 
-        // Use API to get audio
+        // Fixed: Removed space after url=
         const apiUrl = `https://apis.davidcyriltech.my.id/download/ytmp3?url=${encodeURIComponent(videoUrl)}`;
+        
         const response = await fetch(apiUrl);
+        
+        if (!response.ok) {
+            return await reply("❌ API request failed!");
+        }
+        
         const data = await response.json();
 
-        if (!data.success) return await reply("❌ Failed to download audio!");
+        if (!data.success || !data.result?.download_url) {
+            return await reply("❌ Failed to download audio!");
+        }
 
         await conn.sendMessage(from, {
             audio: { url: data.result.download_url },
@@ -47,7 +59,7 @@ cmd({
         await reply(`✅ *${title}* downloaded successfully!`);
 
     } catch (error) {
-        console.error(error);
+        console.error('YT2 Error:', error);
         await reply(`❌ Error: ${error.message}`);
     }
 });
