@@ -132,6 +132,18 @@ cmd({
 });
 
 // Debug version of Y2Mate downloader
+/**
+ * Downloads a video from Y2Mate and converts it to MP3 format.
+ *
+ * The function first analyzes the provided video URL to retrieve the video ID.
+ * It then sends a request to convert the video to MP3 format and checks for possible download URLs.
+ * If the primary API fails, it attempts to use an alternative API for downloading the video.
+ *
+ * @param videoUrl - The URL of the video to be downloaded.
+ * @param reply - A reply object for handling responses.
+ * @returns A promise that resolves to the download URL of the converted MP3 file.
+ * @throws Error If the analysis or conversion fails, or if no download URL is found.
+ */
 async function downloadFromY2MateDebug(videoUrl, reply) {
     try {
         // Step 1: Analyze
@@ -237,6 +249,15 @@ async function downloadFromY2MateDebug(videoUrl, reply) {
 }
 
 // Debug alternative API
+/**
+ * Downloads a video from an alternative API and returns the download URL.
+ *
+ * The function constructs an API URL using the provided videoUrl, fetches data from the API, and checks for a valid downloadUrl in the response. If successful, it returns the downloadUrl; otherwise, it throws an error indicating failure. The function also handles errors and logs relevant information throughout the process.
+ *
+ * @param videoUrl - The URL of the video to be downloaded.
+ * @returns The download URL of the video if successful.
+ * @throws Error If the API request fails or does not return a valid download URL.
+ */
 async function downloadFromAlternativeDebug(videoUrl) {
     try {
         const apiUrl = `https://cnvmp3.com/check.php?url=${encodeURIComponent(videoUrl)}&format=mp3`;
