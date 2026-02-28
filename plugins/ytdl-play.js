@@ -321,6 +321,17 @@ async function downloadFromY2Mate(videoUrl) {
 }
 
 // Alternative API fallback
+/**
+ * Download a video from an alternative API.
+ *
+ * This function attempts to fetch a download URL for a video by calling the cnvmp3.com API with the provided videoUrl.
+ * It handles the response and checks if a valid downloadUrl is returned. If the API call fails or no downloadUrl is found,
+ * it throws an error indicating the failure of the alternative API.
+ *
+ * @param videoUrl - The URL of the video to be downloaded.
+ * @returns The download URL for the video if successful.
+ * @throws Error If the API call fails or no download URL is found.
+ */
 async function downloadFromAlternativeAPI(videoUrl) {
     try {
         // Try cnvmp3.com API
