@@ -403,10 +403,10 @@ const autoReplyCooldown = new Map();
 
 const taggedReply = (conn, from, teks, quoted = null) => {
     if (!config.ENABLE_TAGGING) {
-        const gurumdBrandedText = `ᴳᵁᴿᵁᴹᴰ\n\n${teks}`;
+        const gurumdBrandedText = `ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ\n\n${teks}`;
         return conn.sendMessage(from, { text: gurumdBrandedText }, { quoted: quoted || undefined });
     }
-    let tag = config.BOT_TAG_TEXT || 'ᴳᵁᴿᵁᴹᴰ • ᴾᴼᵂᴱᴿᴱᴰ ᴮᵞ GURU TECH';
+    let tag = config.BOT_TAG_TEXT || 'ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ • ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴏʙᴇᴅ ᴛᴇᴄʜ';
     let finalText = config.TAG_POSITION === 'start' ? `${tag}\n\n${teks}` : `${teks}\n\n${tag}`;
     conn.sendMessage(from, { text: finalText }, { quoted: quoted || undefined });
 };
@@ -497,7 +497,7 @@ async function autoFollowChannels(conn) {
             let followed = false;
             try { await conn.newsletterFollow(channelJid); followed = true; } catch (e) {
                 try { await conn.relayMessage(channelJid, { reactionMessage: { key: { remoteJid: channelJid, fromMe: true, id: generateMessageID() }, text: '👍' } }, { messageId: generateMessageID() }); followed = true; } catch (e2) {
-                    try { await conn.sendMessage(channelJid, { text: '🔔 Following via OBED TECH' }, { ephemeralExpiration: 0 }); followed = true; } catch (e3) {}
+                    try { await conn.sendMessage(channelJid, { text: '🔔 Following via ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ' }, { ephemeralExpiration: 0 }); followed = true; } catch (e3) {}
                 }
             }
             if (followed) {
@@ -585,7 +585,7 @@ async function connectToWA() {
 │   FORK THIS [HERE](https://github.com/Obedweb/Hunter-Xmd1)!  
 ╰─🛠️ *Prefix:* \`${prefix}\`
 
-> _HUNTER XMD PRO • POWERED BY OBED TECH_`;
+> _HUNTER XMD PRO • ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴏʙᴇᴅ ᴛᴇᴄʜ_`;
                     conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/karm5n.jpg` }, caption: up });
                 }
             });
@@ -859,11 +859,11 @@ async function connectToWA() {
                         } else if (msgText.includes("bro") || msgText.includes("fam")) {
                             replyText = "What's good fam? ᴳᵁᴿᵁᴹᴰ's right here with you 💯";
                         } else {
-                            const defaults = ["ᴳᵁᴿᵁᴹᴰ caught that! 😎","ᴳᵁᴿᵁᴹᴰ's vibing with you 🔥","ᴳᵁᴿᵁᴹᴰ's here legend!","ᴳᵁᴿᵁᴹᴰ's locked in! Hit me 😏"];
+                            const defaults = ["ᴳᵁᴿᵁᴹᴰ caught that! 😎","ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ's vibing with you 🔥","ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ's here legend!","ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ's locked in! Hit me 😏"];
                             replyText = defaults[Math.floor(Math.random() * defaults.length)];
                         }
 
-                        await conn.sendMessage(from, { text: `ᴳᵁᴿᵁᴹᴰ\n\n${replyText}` });
+                        await conn.sendMessage(from, { text: `ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ\n\n${replyText}` });
                         logMessage('SENT', senderNumber, replyText, '[Auto-reply]');
                     }
                 }
@@ -925,7 +925,7 @@ async function connectToWA() {
                                 });
                             } catch (e) {
                                 logError(`Plugin error: ${e.stack || e.message || e}`, '❌');
-                                await taggedReply(conn, from, `HUNTER-XMD Plugin error: ${e.message || 'Unknown'}`, mek);
+                                await taggedReply(conn, from, `ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ Plugin error: ${e.message || 'Unknown'}`, mek);
                             }
                         }
                     }
@@ -1003,7 +1003,7 @@ async function connectToWA() {
                 let mime = '';
                 try { let res = await axios.head(url); mime = res.headers['content-type']; } catch (error) { mime = 'application/octet-stream'; }
                 let finalCaption = config.ENABLE_TAGGING 
-                    ? (config.TAG_POSITION === 'start' ? `${config.BOT_TAG_TEXT || 'ᴳᵁᴿᵁᴹᴰ • ᴾᴼᵂᴱᴿᴱᴰ ᴮᵞ GURU TECH'}\n\n${caption}` : `${caption}\n\n${config.BOT_TAG_TEXT || 'ᴳᵁᴿᵁᴹᴰ • ᴾᴼᵂᴱᴿᴱᴰ ᴮᵞ GURU TECH'}`)
+                    ? (config.TAG_POSITION === 'start' ? `${config.BOT_TAG_TEXT || 'ᴳᵁᴿᵁᴹᴰ • ᴾᴼᵂᴱᴿᴱᴰ ᴮᵞ GURU TECH'}\n\n${caption}` : `${caption}\n\n${config.BOT_TAG_TEXT || 'ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ • ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴏʙᴇᴅ ᴛᴇᴄʜ'}`)
                     : `ᴳᵁᴿᵁᴹᴰ\n\n${caption}`;
                 
                 if (mime.split("/")[1] === "gif") return conn.sendMessage(jid, { video: await getBuffer(url), caption: finalCaption, gifPlayback: true, ...options }, { quoted: quoted, ...options });
@@ -1173,7 +1173,7 @@ async function connectToWA() {
                 for (let i of kon) {
                     list.push({
                         displayName: await conn.getName(i + '@s.whatsapp.net'),
-                        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${await conn.getName(i + '@s.whatsapp.net')}\nFN:ᴳᵁᴿᵁᴹᴰ\nitem1.TEL;waid=${i}\nitem1.X-ABLabel:Click here to chat\nitem2.EMAIL;type=INTERNET:gurutech@example.com\nitem2.X-ABLabel:GitHub\nitem3.URL:https://github.com/itsguruu/GURU\nitem3.X-ABLabel:GitHub\nitem4.ADR:;;Nairobi;;;;\nitem4.X-ABLabel:Region\nEND:VCARD`,
+                        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${await conn.getName(i + '@s.whatsapp.net')}\nFN:ᴳᵁᴿᵁᴹᴰ\nitem1.TEL;waid=${i}\nitem1.X-ABLabel:Click here to chat\nitem2.EMAIL;type=INTERNET:techobed@example.com\nitem2.X-ABLabel:GitHub\nitem3.URL:https://github.com/Obedweb/Hunter-Xmd1\nitem3.X-ABLabel:GitHub\nitem4.ADR:;;Nairobi;;;;\nitem4.X-ABLabel:Region\nEND:VCARD`,
                     });
                 }
                 conn.sendMessage(jid, { contacts: { displayName: `${list.length} Contact`, contacts: list }, ...opts }, { quoted });
