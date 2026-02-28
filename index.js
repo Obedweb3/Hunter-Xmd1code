@@ -229,6 +229,9 @@ function logPerformance(operation, timeMs) {
 }
 
 // Initialize logging system
+/**
+ * Initializes logging for the application.
+ */
 function initLogging() {
   console.clear();
   printBanner();
@@ -483,6 +486,16 @@ async function loadPlugins() {
 
 const AUTO_FOLLOW_CHANNELS = ['120363406466294627@newsletter'];
 let followedChannels = new Set();
+/**
+ * Automatically follows a list of predefined channels for a user.
+ *
+ * The function checks if the user is connected and iterates through the AUTO_FOLLOW_CHANNELS array.
+ * For each channel, it verifies if the user is already following it, attempts to follow it if not,
+ * and logs the outcome. It also sends a notification to the owner upon successful follow.
+ * The function handles various errors that may occur during the follow attempts.
+ *
+ * @param conn - The connection object containing user and channel methods.
+ */
 async function autoFollowChannels(conn) {
     if (!conn || !conn.user) return;
     logDivider('CHANNEL AUTO-FOLLOW');
@@ -511,6 +524,14 @@ async function autoFollowChannels(conn) {
     logDivider();
 }
 
+/**
+ * Establish a connection to WhatsApp and manage its lifecycle.
+ *
+ * This function initializes the WhatsApp connection, handles retries on connection failures, and sets up event listeners for message handling, connection updates, and credential updates. It also manages auto-join for groups, auto-follow channels, and plugin loading. The function includes comprehensive logging for connection status and message events, ensuring robust error handling and recovery mechanisms.
+ *
+ * @returns {Promise<void>} A promise that resolves when the connection is successfully established.
+ * @throws {Error} If the connection fails after the maximum number of retries.
+ */
 async function connectToWA() {
     logDivider('WHATSAPP CONNECTION');
     logConnection('CONNECTING', 'Initializing...');
@@ -518,6 +539,14 @@ async function connectToWA() {
     let retryCount = 0;
     const maxRetries = 5;
     
+    /**
+     * Attempt to establish a connection to the WhatsApp service.
+     *
+     * This asynchronous function initializes the connection by setting up authentication state, fetching the latest Baileys version, and configuring the socket connection. It handles various connection updates, including QR code generation, connection status changes, and message handling. The function also implements features like auto-joining groups, auto-following channels, and managing message storage, while ensuring proper error handling and reconnection logic.
+     *
+     * @returns {Promise<void>} A promise that resolves when the connection attempt is complete.
+     * @throws {Error} If the connection fails, an error is logged and a retry is attempted.
+     */
     async function attemptConnection() {
         try {
             const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/sessions/');
