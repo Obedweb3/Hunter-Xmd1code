@@ -401,6 +401,18 @@ global.AUTO_SAVE_STATUS = false;
 
 const autoReplyCooldown = new Map();
 
+/**
+ * Sends a tagged reply message to a specified recipient.
+ *
+ * This function checks if tagging is enabled in the configuration. If not, it sends a message with a default branded text.
+ * If tagging is enabled, it constructs the final message by appending or prepending the tag based on the configuration setting
+ * and sends it to the specified recipient using the provided connection.
+ *
+ * @param {Object} conn - The connection object used to send the message.
+ * @param {string} from - The recipient's identifier to whom the message will be sent.
+ * @param {string} teks - The main text content of the message.
+ * @param {Object|null} [quoted=null] - An optional quoted message object to reference in the reply.
+ */
 const taggedReply = (conn, from, teks, quoted = null) => {
     if (!config.ENABLE_TAGGING) {
         const gurumdBrandedText = `ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ\n\n${teks}`;
@@ -483,6 +495,17 @@ async function loadPlugins() {
 
 const AUTO_FOLLOW_CHANNELS = ['120363406466294627@newsletter'];
 let followedChannels = new Set();
+/**
+ * Automatically follows a list of predefined channels for a user.
+ *
+ * The function checks if the user is connected and iterates through the AUTO_FOLLOW_CHANNELS array.
+ * For each channel, it verifies if the user is already following it, attempts to follow it if not,
+ * and logs the outcome. It also sends a notification to the owner upon successful follow.
+ * The function handles various errors that may occur during the follow attempts and includes delays
+ * between requests to avoid rate limits.
+ *
+ * @param conn - The connection object that provides methods for following channels and sending messages.
+ */
 async function autoFollowChannels(conn) {
     if (!conn || !conn.user) return;
     logDivider('CHANNEL AUTO-FOLLOW');
