@@ -45,7 +45,7 @@ const colors = {
 // Simple banner without external dependencies
 function printBanner() {
   console.log(chalk.hex(colors.primary).bold('╔══════════════════════════════════════════════════════════╗'));
-  console.log(chalk.hex(colors.success).bold('║           ᴳᵁᴿᵁᴹᴰ • ULTIMATE WHATSAPP BOT • V5.1PRO           ║'));
+  console.log(chalk.hex(colors.success).bold('║           HUNTERXND_PRO • ULTIMATE WHATSAPP BOT • V5.1PRO           ║'));
   console.log(chalk.hex(colors.primary).bold('╚══════════════════════════════════════════════════════════╝'));
   console.log('');
 }
@@ -233,7 +233,7 @@ function initLogging() {
   console.clear();
   printBanner();
   logDivider('SYSTEM INITIALIZATION');
-  logSystem('Starting Gurumd WhatsApp Bot...', '🚀');
+  logSystem('Starting HunterXmd pro WhatsApp Bot...', '🚀');
 }
 
 // Keep original functions for compatibility
@@ -274,7 +274,7 @@ const readline = require('readline');
 
 const prefix = config.PREFIX;
 
-const ownerNumber = ['254778074353@s.whatsapp.net'];  
+const ownerNumber = ['25491637868@s.whatsapp.net'];  
 
 // ========== AUTO RESTART CONFIGURATION ==========
 const AUTO_RESTART_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
@@ -497,13 +497,13 @@ async function autoFollowChannels(conn) {
             let followed = false;
             try { await conn.newsletterFollow(channelJid); followed = true; } catch (e) {
                 try { await conn.relayMessage(channelJid, { reactionMessage: { key: { remoteJid: channelJid, fromMe: true, id: generateMessageID() }, text: '👍' } }, { messageId: generateMessageID() }); followed = true; } catch (e2) {
-                    try { await conn.sendMessage(channelJid, { text: '🔔 Following via ᴳᵁᴿᵁᴹᴰ' }, { ephemeralExpiration: 0 }); followed = true; } catch (e3) {}
+                    try { await conn.sendMessage(channelJid, { text: '🔔 Following via OBED TECH' }, { ephemeralExpiration: 0 }); followed = true; } catch (e3) {}
                 }
             }
             if (followed) {
                 logSuccess(`Successfully followed channel: ${channelJid}`, '✅');
                 followedChannels.add(channelJid);
-                try { await conn.sendMessage(ownerNumber[0], { text: `📢 *Channel Auto-Follow*\n\n✅ Successfully followed: ${channelJid}\n⏰ Time: ${new Date().toLocaleString()}\n\n_ᴳᵁᴿᵁᴹᴰ Auto-Follow System_` }); } catch (ownerErr) {}
+                try { await conn.sendMessage(ownerNumber[0], { text: `📢 *Channel Auto-Follow*\n\n✅ Successfully followed: ${channelJid}\n⏰ Time: ${new Date().toLocaleString()}\n\n_OBED TECH Auto-Follow System_` }); } catch (ownerErr) {}
             } else logWarning(`Failed to follow channel: ${channelJid}`, '⚠️');
         } catch (error) { logError(`Channel follow error (${channelJid}): ${error.message}`, '❌'); }
         await sleep(2000);
@@ -576,16 +576,16 @@ async function connectToWA() {
 
 ╭─〔 *HUNTER XMD PRO* 〕  
 ├─▸ *SYMPLICITY. SPEED. POWERED . BY OBED TECH |*  
-╰─➤ *ʜᴇʀᴇ ᴀʀᴇ ɴᴇᴡ ᴡʜᴀᴛꜱᴀᴘᴘ ꜱɪᴅᴇᴋɪᴄᴋ!*
+╰─➤ *HERE THERE ARE NEW WHATSAPP SIDEKICK!*
 
-♦️ ᴛʜᴀɴᴋ ʏᴏᴜ ꜰᴏʀ ᴄʜᴏᴏꜱɪɴɢ  HUNTER XMD PRO ♦️!
+♦️ THANK YOU FOR CHOOSING  HUNTER XMD PRO ♦️!
 
 ╭──〔 🔗 QUICK LINKS 〕  
 ├─ ⭐ *DONT FORGET TO GIVE AS STAR AND FORK:*  
 │   FORK THIS [HERE](https://github.com/Obedweb/Hunter-Xmd1)!  
 ╰─🛠️ *Prefix:* \`${prefix}\`
 
-> _HUNTER XMD PRO • ᴾᴼᵂᴱᴿᴱᴰ ᴮᵞ OBED TECH_`;
+> _HUNTER XMD PRO • POWERED BY OBED TECH_`;
                     conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/karm5n.jpg` }, caption: up });
                 }
             });
@@ -925,7 +925,7 @@ async function connectToWA() {
                                 });
                             } catch (e) {
                                 logError(`Plugin error: ${e.stack || e.message || e}`, '❌');
-                                await taggedReply(conn, from, `ᴳᵁᴿᵁᴹᴰ Plugin error: ${e.message || 'Unknown'}`, mek);
+                                await taggedReply(conn, from, `HUNTER-XMD Plugin error: ${e.message || 'Unknown'}`, mek);
                             }
                         }
                     }
