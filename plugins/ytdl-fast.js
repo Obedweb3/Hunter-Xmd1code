@@ -1,21 +1,9 @@
 const { cmd } = require('../command');
 const axios = require('axios');
-const ytdl = require('@distube/ytdl-core'); // Updated to maintained fork
+const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
 const fs = require('fs');
 const path = require('path');
-
-// ═══════════════════════════════════════════════════════════════
-// OBEDTECH YOUTUBE DOWNLOADER - PREMIUM EDITION v2.0
-// ═══════════════════════════════════════════════════════════════
-
-// Helper function to format views
-function formatNumber(num) {
-    if (!num) return '0';
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-    return num.toString();
-}
 
 cmd({
     pattern: "play",
@@ -27,7 +15,7 @@ cmd({
     filename: __filename
 }, async (conn, mek, m, { from, q, reply }) => {
     try {
-        if (!q) return reply("╔════════════════════════════════════╗\n║  ❌  PLEASE PROVIDE A SONG NAME  ❌  ║\n╚════════════════════════════════════╝\n\n*Examples:*\n.play Alan Walker Faded (audio)\n.play video Alan Walker Faded (video)\n\n⚡ *Powered By ObedTech*");
+        if (!q) return reply("❌ Please provide a song name!\n\n*Examples:*\n.play Alan Walker Faded (audio)\n.play video Alan Walker Faded (video)");
 
         // Check if user wants video or audio
         let isVideo = false;
@@ -43,14 +31,14 @@ cmd({
         const startTime = Date.now();
         await conn.sendMessage(from, { react: { text: "⏳", key: mek.key } });
         
-        // Send initial status with ObedTech styling
-        const statusMsg = await reply(`╔════════════════════════════════════╗\n║  🔍  SEARCHING: ${searchQuery.substring(0, 20)}${searchQuery.length > 20 ? '...' : ''}  ║\n╚════════════════════════════════════╝\n\n⏱️ Please wait...`);
+        // Send initial status
+        const statusMsg = await reply(`🔍 *Searching:* ${searchQuery}\n⏱️ Please wait...`);
 
         // Step 1: Search for the video
         const searchResults = await ytSearch(searchQuery);
         
         if (!searchResults || !searchResults.videos || searchResults.videos.length === 0) {
-            return reply("╔════════════════════════════════════╗\n║  ❌  NO RESULTS FOUND  ❌  ║\n╚════════════════════════════════════╝\n\nTry different keywords.\n\n⚡ *Powered By ObedTech*");
+            return reply("❌ No results found. Try different keywords.");
         }
 
         // Get the best match
@@ -69,7 +57,7 @@ cmd({
 
         // Update status
         await conn.sendMessage(from, {
-            text: `╔════════════════════════════════════╗\n║  📥  PROCESSING ${isVideo ? 'VIDEO' : 'AUDIO'}  ║\n╚════════════════════════════════════╝\n\n🎵 ${videoInfo.title}\n👤 ${videoInfo.author}\n⏱️ Duration: ${videoInfo.duration}\n\n⏳ Getting ${isVideo ? 'video' : 'audio'}...`,
+            text: `📥 *Processing ${isVideo ? 'VIDEO' : 'AUDIO'}:*\n🎵 ${videoInfo.title}\n👤 ${videoInfo.author}\n⏱️ Duration: ${videoInfo.duration}\n\n⏳ Getting ${isVideo ? 'video' : 'audio'}...`,
             edit: statusMsg.key
         });
 
@@ -165,7 +153,7 @@ cmd({
                 console.log(`Attempting ${api.name}...`);
                 const response = await axios.get(api.url, { 
                     timeout: 15000,
-                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+                    headers: { 'User-Agent': 'Mozilla/5.0' }
                 });
                 
                 if (response.data) {
@@ -175,7 +163,7 @@ cmd({
                         const mediaResponse = await axios.get(downloadUrl, {
                             responseType: 'arraybuffer',
                             timeout: 60000,
-                            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+                            headers: { 'User-Agent': 'Mozilla/5.0' }
                         });
                         mediaBuffer = Buffer.from(mediaResponse.data);
                         downloadMethod = api.name;
@@ -193,6 +181,10 @@ cmd({
             try {
                 console.log(`Attempting ytdl-core ${isVideo ? 'video' : 'audio'} download...`);
                 
+                const options = isVideo ? 
+                    { quality: 'lowest', filter: 'videoandaudio' } : 
+                    { filter: 'audioonly', quality: 'highestaudio' };
+                
                 // Get info first
                 const info = await ytdl.getInfo(video.url);
                 let format;
@@ -201,10 +193,10 @@ cmd({
                     // Try to find a format with both video and audio
                     format = ytdl.chooseFormat(info.formats, { quality: '18' }); // 360p with audio
                     if (!format) {
-                        format = ytdl.chooseFormat(info.formats, { filter: 'videoandaudio', quality: 'lowest' });
+                        format = ytdl.chooseFormat(info.formats, { quality: 'lowest' });
                     }
                 } else {
-                    format = ytdl.chooseFormat(info.formats, { filter: 'audioonly', quality: 'highestaudio' });
+                    format = ytdl.chooseFormat(info.formats, { filter: 'audioonly' });
                 }
                 
                 if (format && format.url) {
@@ -212,7 +204,7 @@ cmd({
                         responseType: 'arraybuffer',
                         timeout: 60000,
                         headers: { 
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                            'User-Agent': 'Mozilla/5.0',
                             'Range': 'bytes=0-'
                         }
                     });
@@ -225,6 +217,26 @@ cmd({
             }
         }
 
+        // METHOD 5: Try direct download from YouTube
+        if (!mediaBuffer) {
+            try {
+                console.log("Attempting direct download...");
+                const directApi = `https://youtube.com/watch?v=${video.videoId}`;
+                const response = await axios.get(directApi, { 
+                    responseType: 'arraybuffer',
+                    timeout: 30000,
+                    headers: { 
+                        'User-Agent': 'Mozilla/5.0',
+                        'Accept': 'video/mp4'
+                    }
+                });
+                mediaBuffer = Buffer.from(response.data);
+                downloadMethod = 'Direct';
+            } catch (err) {
+                errorLog.push(`Direct: ${err.message}`);
+            }
+        }
+
         // If all methods fail
         if (!mediaBuffer) {
             console.log("All download methods failed:", errorLog);
@@ -233,19 +245,15 @@ cmd({
             const altLinks = [
                 `https://www.y2mate.com/youtube/${video.videoId}`,
                 `https://en.savefrom.net/${video.videoId}/`,
-                `https://loader.to/api/button/?url=${encodeURIComponent(video.url)}&f=${isVideo ? 'mp4' : 'mp3'}`,
+                `https://loader.to/api/button/?url=${video.url}&f=${isVideo ? 'mp4' : 'mp3'}`,
                 `https://yt1s.com/en/youtube-to-${isVideo ? 'mp4' : 'mp3'}?q=${video.videoId}`
             ];
 
-            const errorMessage = `╔════════════════════════════════════╗\n` +
-                `║  ❌  DOWNLOAD FAILED  ❌  ║\n` +
-                `╚════════════════════════════════════╝\n\n` +
-                `┌─[ 📊 VIDEO INFORMATION ]\n` +
-                `├ 🎵 Title: ${videoInfo.title}\n` +
-                `├ 👤 Channel: ${videoInfo.author}\n` +
-                `├ ⏱️ Duration: ${videoInfo.duration}\n` +
-                `├ 👀 Views: ${videoInfo.views}\n` +
-                `└ 📅 Uploaded: ${videoInfo.uploaded}\n\n` +
+            const errorMessage = `❌ *Download Failed*\n\n` +
+                `🎵 *Title:* ${videoInfo.title}\n` +
+                `👤 *Channel:* ${videoInfo.author}\n` +
+                `⏱️ *Duration:* ${videoInfo.duration}\n` +
+                `👀 *Views:* ${videoInfo.views}\n\n` +
                 `⚠️ Could not download ${isVideo ? 'video' : 'audio'} at this time.\n\n` +
                 `🔗 *Watch on YouTube:*\n${videoInfo.url}\n\n` +
                 `📱 *Alternative Download Sites:*\n` +
@@ -254,8 +262,7 @@ cmd({
                 `• Try .play audio ${searchQuery}\n` +
                 `• Try .play video ${searchQuery}\n` +
                 `• Use different keywords\n` +
-                `• Download manually from the links above\n\n` +
-                `⚡ *Powered By ObedTech*`;
+                `• Download manually from the links above`;
             
             return await conn.sendMessage(from, {
                 image: { url: videoInfo.thumbnail },
@@ -276,25 +283,17 @@ cmd({
         const downloadTime = ((Date.now() - startTime) / 1000).toFixed(1);
         const fileSize = (mediaBuffer.length / (1024 * 1024)).toFixed(2);
 
-        // ═══════════════════════════════════════════════════════════════
-        // OBEDTECH PREMIUM STYLING - SUCCESS MESSAGE
-        // ═══════════════════════════════════════════════════════════════
-        
-        const caption = `╔════════════════════════════════════════╗\n` +
-            `║     🎵  OBEDTECH ${isVideo ? 'VIDEO' : 'MUSIC'} DOWNLOADER  🎵     ║\n` +
-            `╚════════════════════════════════════════╝\n\n` +
-            `┌─[ 📊 DOWNLOAD INFORMATION ]\n` +
-            `├ 🎵 Title: ${videoInfo.title}\n` +
-            `├ 👤 Channel: ${videoInfo.author}\n` +
-            `├ ⏱️ Duration: ${videoInfo.duration}\n` +
-            `├ 👀 Views: ${videoInfo.views}\n` +
-            `├ 📅 Uploaded: ${videoInfo.uploaded}\n` +
-            `├ 📦 Size: ${fileSize} MB\n` +
-            `├ ⚡ Speed: ${downloadTime}s\n` +
-            `└ 🔧 Method: ${downloadMethod}\n\n` +
-            `╔════════════════════════════════════════╗\n` +
-            `║     ⚡ POWERED BY OBEDTECH ⚡          ║\n` +
-            `╚════════════════════════════════════════╝`;
+        // Prepare caption
+        const caption = `╭══━ ★ *GURU-MD ${isVideo ? 'VIDEO' : 'PLAYER'}* ★ ━══╮\n\n` +
+            `🎵 *Title:* ${videoInfo.title}\n` +
+            `👤 *Channel:* ${videoInfo.author}\n` +
+            `⏱️ *Duration:* ${videoInfo.duration}\n` +
+            `👀 *Views:* ${videoInfo.views}\n` +
+            `📅 *Uploaded:* ${videoInfo.uploaded}\n` +
+            `📦 *Size:* ${fileSize} MB\n` +
+            `⚡ *Speed:* ${downloadTime}s\n` +
+            `🔧 *Method:* ${downloadMethod}\n\n` +
+            `╰══━ ★ *Powered By GuruTech* ★ ━══╯`;
 
         // Send based on type
         if (isVideo) {
@@ -335,48 +334,44 @@ cmd({
         // Send success reaction
         await conn.sendMessage(from, { react: { text: "✅", key: mek.key } });
 
-        // Send thumbnail as view once with ObedTech branding
+        // Send thumbnail as view once
         await conn.sendMessage(from, {
             image: { url: videoInfo.thumbnail },
-            caption: `╔════════════════════════════════════╗\n` +
-                     `║  ✅ ${isVideo ? 'VIDEO' : 'AUDIO'} READY  ✅  ║\n` +
-                     `╠════════════════════════════════════╣\n` +
-                     `║ 🎵 ${videoInfo.title}\n` +
-                     `║ 👤 ${videoInfo.author}\n` +
-                     `╚════════════════════════════════════╝\n\n` +
-                     `⚡ *Powered By ObedTech*`,
+            caption: `🎵 *${isVideo ? 'Video' : 'Audio'} Ready:*\n> ${videoInfo.title}\n> ${videoInfo.author}\n\n> © ᴄʀᴇᴀᴛᴇᴅ ʙʏ GuruTech`,
             viewOnce: true
         }, { quoted: mek });
 
     } catch (error) {
         console.error("Play command error:", error);
         
-        let errorMsg = "╔════════════════════════════════════╗\n" +
-                       "║  ❌  ERROR OCCURRED  ❌  ║\n" +
-                       "╚════════════════════════════════════╝\n\n";
+        let errorMsg = "❌ An error occurred.\n\n";
         
         if (error.message.includes('yt-search')) {
-            errorMsg += "🔍 Search service unavailable. Please try again later.";
+            errorMsg += "Search service unavailable. Please try again later.";
         } else if (error.message.includes('network')) {
-            errorMsg += "🌐 Network error. Check your internet connection.";
+            errorMsg += "Network error. Check your internet connection.";
         } else if (error.message.includes('timeout')) {
-            errorMsg += "⏱️ Request timeout. The service is slow, try again.";
+            errorMsg += "Request timeout. The service is slow, try again.";
         } else {
-            errorMsg += `⚠️ ${error.message || "Unknown error"}`;
+            errorMsg += error.message || "Unknown error";
         }
         
-        errorMsg += "\n\n💡 *Try using different keywords or .play video/audio command.*\n\n" +
-                    "⚡ *Powered By ObedTech*";
+        errorMsg += "\n\n🔄 Try using different keywords or .play video/audio command.";
         
         await reply(errorMsg);
         await conn.sendMessage(from, { react: { text: "❌", key: mek.key } });
     }
 });
 
-// ═══════════════════════════════════════════════════════════════
-// QUICK AUDIO DOWNLOAD - OBEDTECH EDITION
-// ═══════════════════════════════════════════════════════════════
+// Helper function to format views
+function formatNumber(num) {
+    if (!num) return '0';
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+}
 
+// Quick audio download command
 cmd({
     pattern: "yt",
     alias: ["ytaudio", "ytmp3"],
@@ -387,18 +382,12 @@ cmd({
     filename: __filename
 }, async (conn, mek, m, { from, q, reply }) => {
     try {
-        if (!q) return reply("╔════════════════════════════════════╗\n" +
-                             "║  ❌  PROVIDE A SONG NAME  ❌  ║\n" +
-                             "╚════════════════════════════════════╝\n\n" +
-                             "⚡ *Powered By ObedTech*");
+        if (!q) return reply("❌ Provide a song name!");
         
         await conn.sendMessage(from, { react: { text: "⏳", key: mek.key } });
         
         const search = await ytSearch(q);
-        if (!search.videos.length) return reply("╔════════════════════════════════════╗\n" +
-                                                 "║  ❌  NO RESULTS FOUND  ❌  ║\n" +
-                                                 "╚════════════════════════════════════╝\n\n" +
-                                                 "⚡ *Powered By ObedTech*");
+        if (!search.videos.length) return reply("❌ No results found!");
         
         const video = search.videos[0];
         
@@ -412,14 +401,7 @@ cmd({
                     audio: { url: response.data.downloadUrl },
                     mimetype: 'audio/mpeg',
                     fileName: `${video.title}.mp3`,
-                    caption: `╔════════════════════════════════════╗\n` +
-                             `║  🎵  OBEDTECH MUSIC PLAYER  🎵  ║\n` +
-                             `╠════════════════════════════════════╣\n` +
-                             `├ 🎵 Title: ${video.title}\n` +
-                             `├ 👤 Artist: ${video.author.name}\n` +
-                             `├ ⏱️ Duration: ${video.timestamp}\n` +
-                             `╚════════════════════════════════════╝\n\n` +
-                             `⚡ *Powered By ObedTech*`
+                    caption: `🎵 *${video.title}*\n👤 ${video.author.name}\n⏱️ ${video.timestamp}`
                 }, { quoted: mek });
                 
                 await conn.sendMessage(from, { react: { text: "✅", key: mek.key } });
@@ -437,34 +419,19 @@ cmd({
             audio: { url: format.url },
             mimetype: 'audio/mpeg',
             fileName: `${video.title}.mp3`,
-            caption: `╔════════════════════════════════════╗\n` +
-                     `║  🎵  OBEDTECH MUSIC PLAYER  🎵  ║\n` +
-                     `╠════════════════════════════════════╣\n` +
-                     `├ 🎵 Title: ${video.title}\n` +
-                     `├ 👤 Artist: ${video.author.name}\n` +
-                     `├ ⏱️ Duration: ${video.timestamp}\n` +
-                     `╚════════════════════════════════════╝\n\n` +
-                     `⚡ *Powered By ObedTech*`
+            caption: `🎵 *${video.title}*\n👤 ${video.author.name}\n⏱️ ${video.timestamp}`
         }, { quoted: mek });
         
         await conn.sendMessage(from, { react: { text: "✅", key: mek.key } });
         
     } catch (error) {
         console.error("YT command error:", error);
-        reply("╔════════════════════════════════════╗\n" +
-              "║  ❌  ERROR  ❌  ║\n" +
-              "╠════════════════════════════════════╣\n" +
-              `║ ${error.message}\n` +
-              "╚════════════════════════════════════╝\n\n" +
-              "⚡ *Powered By ObedTech*");
+        reply("❌ Error: " + error.message);
         await conn.sendMessage(from, { react: { text: "❌", key: mek.key } });
     }
 });
 
-// ═══════════════════════════════════════════════════════════════
-// VIDEO DOWNLOAD COMMAND - OBEDTECH EDITION
-// ═══════════════════════════════════════════════════════════════
-
+// Video download command
 cmd({
     pattern: "video",
     alias: ["ytvideo", "ytmp4"],
@@ -475,18 +442,12 @@ cmd({
     filename: __filename
 }, async (conn, mek, m, { from, q, reply }) => {
     try {
-        if (!q) return reply("╔════════════════════════════════════╗\n" +
-                             "║  ❌  PROVIDE A VIDEO NAME  ❌  ║\n" +
-                             "╚════════════════════════════════════╝\n\n" +
-                             "⚡ *Powered By ObedTech*");
+        if (!q) return reply("❌ Provide a video name!");
         
         await conn.sendMessage(from, { react: { text: "⏳", key: mek.key } });
         
         const search = await ytSearch(q);
-        if (!search.videos.length) return reply("╔════════════════════════════════════╗\n" +
-                                                 "║  ❌  NO RESULTS FOUND  ❌  ║\n" +
-                                                 "╚════════════════════════════════════╝\n\n" +
-                                                 "⚡ *Powered By ObedTech*");
+        if (!search.videos.length) return reply("❌ No results found!");
         
         const video = search.videos[0];
         
@@ -499,14 +460,7 @@ cmd({
                 await conn.sendMessage(from, {
                     video: { url: response.data.downloadUrl },
                     mimetype: 'video/mp4',
-                    caption: `╔════════════════════════════════════╗\n` +
-                             `║  🎬  OBEDTECH VIDEO PLAYER  🎬  ║\n` +
-                             `╠════════════════════════════════════╣\n` +
-                             `├ 🎬 Title: ${video.title}\n` +
-                             `├ 👤 Channel: ${video.author.name}\n` +
-                             `├ ⏱️ Duration: ${video.timestamp}\n` +
-                             `╚════════════════════════════════════╝\n\n` +
-                             `⚡ *Powered By ObedTech*`
+                    caption: `🎬 *${video.title}*\n👤 ${video.author.name}\n⏱️ ${video.timestamp}`
                 }, { quoted: mek });
                 
                 await conn.sendMessage(from, { react: { text: "✅", key: mek.key } });
@@ -523,34 +477,19 @@ cmd({
         await conn.sendMessage(from, {
             video: { url: format.url },
             mimetype: 'video/mp4',
-            caption: `╔════════════════════════════════════╗\n` +
-                     `║  🎬  OBEDTECH VIDEO PLAYER  🎬  ║\n` +
-                     `╠════════════════════════════════════╣\n` +
-                     `├ 🎬 Title: ${video.title}\n` +
-                     `├ 👤 Channel: ${video.author.name}\n` +
-                     `├ ⏱️ Duration: ${video.timestamp}\n` +
-                     `╚════════════════════════════════════╝\n\n` +
-                     `⚡ *Powered By ObedTech*`
+            caption: `🎬 *${video.title}*\n👤 ${video.author.name}\n⏱️ ${video.timestamp}`
         }, { quoted: mek });
         
         await conn.sendMessage(from, { react: { text: "✅", key: mek.key } });
         
     } catch (error) {
         console.error("Video command error:", error);
-        reply("╔════════════════════════════════════╗\n" +
-              "║  ❌  ERROR  ❌  ║\n" +
-              "╠════════════════════════════════════╣\n" +
-              `║ ${error.message}\n` +
-              "╚════════════════════════════════════╝\n\n" +
-              "⚡ *Powered By ObedTech*");
+        reply("❌ Error: " + error.message);
         await conn.sendMessage(from, { react: { text: "❌", key: mek.key } });
     }
 });
 
-// ═══════════════════════════════════════════════════════════════
-// API STATUS CHECK - OBEDTECH EDITION
-// ═══════════════════════════════════════════════════════════════
-
+// API status check
 cmd({
     pattern: "apistatus",
     alias: ["checkapi"],
@@ -567,9 +506,7 @@ cmd({
         { name: 'ytdl-core', url: null, type: 'local' }
     ];
     
-    let statusMsg = "╔════════════════════════════════════════╗\n" +
-                    "║     🔌  OBEDTECH API STATUS  🔌       ║\n" +
-                    "╚════════════════════════════════════════╝\n\n";
+    let statusMsg = "🔌 *API Status Check*\n\n";
     
     for (const api of apis) {
         if (api.type === 'local') {
@@ -584,19 +521,12 @@ cmd({
         }
     }
     
-    statusMsg += "\n╔════════════════════════════════════════╗\n" +
-                 "║     📋  AVAILABLE COMMANDS  📋        ║\n" +
-                 "╠════════════════════════════════════════╣\n" +
-                 "║ • .play <song>      → Audio Download  ║\n" +
-                 "║ • .play video <song>→ Video Download  ║\n" +
-                 "║ • .yt <song>        → Quick Audio     ║\n" +
-                 "║ • .video <song>     → Quick Video     ║\n" +
-                 "╚════════════════════════════════════════╝\n\n" +
-                 "⚡ *Powered By ObedTech*";
+    statusMsg += "\n> *Usage:*\n";
+    statusMsg += "• .play <song> - Audio\n";
+    statusMsg += "• .play video <song> - Video\n";
+    statusMsg += "• .yt <song> - Quick audio\n";
+    statusMsg += "• .video <song> - Quick video\n\n";
+    statusMsg += "> © GURU-TECH";
     
     await reply(statusMsg);
 });
-
-// ═══════════════════════════════════════════════════════════════
-// OBEDTECH - PREMIUM YOUTUBE DOWNLOADER v2.0
-// ═══════════════════════════════════════════════════════════════
