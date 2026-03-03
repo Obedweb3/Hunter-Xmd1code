@@ -10,6 +10,9 @@ if (!fs.existsSync(ANTI_DEL_FILE)) {
     fs.writeFileSync(ANTI_DEL_FILE, JSON.stringify({ enabled: false }));
 }
 
+/**
+ * Retrieves the enabled status from the anti-del file.
+ */
 async function getAnti() {
     try {
         const data = JSON.parse(fs.readFileSync(ANTI_DEL_FILE));
@@ -19,6 +22,9 @@ async function getAnti() {
     }
 }
 
+/**
+ * Sets the anti status by writing to a file.
+ */
 async function setAnti(status) {
     fs.writeFileSync(ANTI_DEL_FILE, JSON.stringify({ enabled: status }));
 }
