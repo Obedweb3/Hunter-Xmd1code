@@ -5,7 +5,7 @@ const ytSearch = require('yt-search');
 const crypto = require('crypto');
 
 // ═══════════════════════════════════════════════════════════════════
-// GURU-MD INTELLIGENT MEDIA ENGINE v3.0
+// HUNTER XMD PRO INTELLIGENT MEDIA ENGINE v5.0
 // Advanced YouTube Downloader with AI-Powered Fallbacks
 // ═══════════════════════════════════════════════════════════════════
 
