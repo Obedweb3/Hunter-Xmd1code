@@ -252,27 +252,27 @@ function gurumdStyle(text, type = 'normal') {
 // Initialize logging
 initLogging();
 
-const l = console.log;
-const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions');
-const { AntiDelDB, initializeAntiDeleteSettings, setAnti, getAnti, getAllAntiDeleteSettings, saveContact, loadMessage, getName, getChatSummary, saveGroupMetadata, getGroupMetadata, saveMessageCount, getInactiveGroupMembers, getGroupMembersMessageCount, saveMessage } = require('./data');
-const fs = require('fs');
-const ff = require('fluent-ffmpeg');
-const P = require('pino');
-const config = require('./config');
-const qrcode = require('qrcode-terminal');
-const StickersTypes = require('wa-sticker-formatter');
-const util = require('util');
-const { sms, AntiDelete } = require('./lib');
-const FileType = require('file-type');
-const axios = require('axios');
-const { fromBuffer } = require('file-type');
-const bodyparser = require('body-parser');
-const os = require('os');
-const Crypto = require('crypto');
-const path = require('path');
-const readline = require('readline');
-
-const prefix = config.PREFIX;
+const l = console.log
+const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions')
+const { AntiDelDB, initializeAntiDeleteSettings, setAnti, getAnti, getAllAntiDeleteSettings, saveContact, loadMessage, getName, getChatSummary, saveGroupMetadata, getGroupMetadata, saveMessageCount, getInactiveGroupMembers, getGroupMembersMessageCount, saveMessage } = require('./data')
+const fs = require('fs')
+const ff = require('fluent-ffmpeg')
+const P = require('pino')
+const config = require('./config')
+const GroupEvents = require('./lib/groupevents')
+const qrcode = require('qrcode-terminal')
+const StickersTypes = require('wa-sticker-formatter')
+const util = require('util')
+const { sms, downloadMediaMessage, AntiDelete } = require('./lib')
+const FileType = require('file-type')
+const axios = require('axios')
+const { File } = require('megajs')
+const { fromBuffer } = require('file-type')
+const bodyparser = require('body-parser')
+const os = require('os')
+const Crypto = require('crypto')
+const path = require('path')
+const prefix = config.PREFIX
 
 const ownerNumber = ['25491637868@s.whatsapp.net'];  
 
