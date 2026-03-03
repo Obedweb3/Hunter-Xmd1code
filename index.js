@@ -51,6 +51,9 @@ function printBanner() {
 }
 
 // Enhanced Log Functions (simplified)
+/**
+ * Logs a success message with an optional emoji.
+ */
 function logSuccess(message, emoji = '✅') {
   console.log(`${emoji} ${chalk.hex(colors.success).bold(message)}`);
 }
@@ -59,19 +62,31 @@ function logError(message, emoji = '❌') {
   console.log(`${emoji} ${chalk.hex(colors.error).bold(message)}`);
 }
 
+/**
+ * Logs a warning message with an optional emoji.
+ */
 function logWarning(message, emoji = '⚠️') {
   console.log(`${emoji} ${chalk.hex(colors.warning).bold(message)}`);
 }
 
+/**
+ * Logs an informational message with an optional emoji.
+ */
 function logInfo(message, emoji = 'ℹ️') {
   console.log(`${emoji} ${chalk.hex(colors.info).bold(message)}`);
 }
 
+/**
+ * Logs a system message with an optional emoji.
+ */
 function logSystem(message, emoji = '⚙️') {
   console.log(`${emoji} ${chalk.hex(colors.system).bold(message)}`);
 }
 
 // Beautiful Divider
+/**
+ * Logs a styled divider with optional text.
+ */
 function logDivider(text = '') {
   const dividerLength = 60;
   const textLength = text.length;
@@ -106,6 +121,9 @@ function logMessage(type, from, content = '', extra = '') {
 }
 
 // Connection Status Log
+/**
+ * Logs the connection status with an icon and color.
+ */
 function logConnection(status, details = '') {
   const statusIcons = {
     'CONNECTING': { icon: '🔄', color: colors.warning },
@@ -121,6 +139,9 @@ function logConnection(status, details = '') {
 }
 
 // Memory Usage Log - FIXED VERSION (no broken strings, no invalid escapes)
+/**
+ * Logs the current memory usage of the process.
+ */
 function logMemory() {
   const used = process.memoryUsage();
   const rss = Math.round(used.rss / 1024 / 1024);
@@ -135,6 +156,9 @@ function logMemory() {
 }
 
 // Plugin Loader Log
+/**
+ * Logs the plugin's name, version, and status with an icon.
+ */
 function logPlugin(name, version, status = 'LOADED') {
   const statusIcons = {
     'LOADED': { icon: '✅', color: colors.success },
@@ -193,6 +217,9 @@ function logMedia(type, size, from = '') {
 }
 
 // Group Activity Log
+/**
+ * Logs a group action with an icon and color based on the action type.
+ */
 function logGroupAction(action, group, user = '') {
   const actions = {
     'JOIN': { icon: '👥', color: colors.success },
@@ -210,6 +237,16 @@ function logGroupAction(action, group, user = '') {
 }
 
 // Performance Log
+/**
+ * Logs the performance of a given operation with its execution time.
+ *
+ * The function determines the color coding for the execution time based on predefined thresholds.
+ * It uses the `chalk` library to format the output and logs a message indicating the operation's name
+ * and the time taken, along with a descriptive label for the performance level.
+ *
+ * @param {string} operation - The name of the operation being logged.
+ * @param {number} timeMs - The time taken for the operation in milliseconds.
+ */
 function logPerformance(operation, timeMs) {
   const color = timeMs < 100 ? colors.success : 
                 timeMs < 500 ? colors.warning : 
@@ -229,6 +266,9 @@ function logPerformance(operation, timeMs) {
 }
 
 // Initialize logging system
+/**
+ * Initializes logging for the application.
+ */
 function initLogging() {
   console.clear();
   printBanner();
@@ -280,6 +320,9 @@ const ownerNumber = ['25491637868@s.whatsapp.net'];
 const AUTO_RESTART_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
 let restartTimer = null;
 
+/**
+ * Initiates an auto-restart of the bot.
+ */
 function restartBot() {
     logWarning('🔄 AUTO-RESTART INITIATED', '🔄');
     logSystem(`Restarting after ${AUTO_RESTART_INTERVAL/3600000} hours...`, '⏰');
@@ -287,6 +330,9 @@ function restartBot() {
     process.exit(0);
 }
 
+/**
+ * Schedules an automatic restart of the bot after a specified interval.
+ */
 function scheduleAutoRestart() {
     if (restartTimer) clearTimeout(restartTimer);
     restartTimer = setTimeout(restartBot, AUTO_RESTART_INTERVAL);
@@ -312,6 +358,14 @@ if (!fs.existsSync(tempDir)) {
     fs.mkdirSync(tempDir, { recursive: true });
 }
 
+/**
+ * Cleans up temporary files in the specified directory.
+ *
+ * The function reads the contents of the tempDir directory and attempts to delete each file found.
+ * If an error occurs while reading the directory, a warning is logged. If the directory is empty,
+ * the function exits early. It uses promises to handle the deletion of files and logs the success
+ * message once all deletions are settled.
+ */
 const clearTempDir = () => {
     fs.readdir(tempDir, (err, files) => {
         if (err) {
@@ -380,6 +434,14 @@ if (!isHeroku) {
     }
 })();
 
+/**
+ * Validates the configuration settings.
+ *
+ * This function checks for the presence of required configuration keys, specifically 'PREFIX'.
+ * If any required keys are missing, it logs an error and returns false. Additionally, it checks
+ * if 'ENABLE_TAGGING' is true without 'BOT_TAG_TEXT' being set, logging a warning in that case.
+ * If all validations pass, it returns true.
+ */
 function validateConfig() {
     const required = ['PREFIX'];
     const missing = required.filter(key => !config[key]);
@@ -401,6 +463,18 @@ global.AUTO_SAVE_STATUS = false;
 
 const autoReplyCooldown = new Map();
 
+/**
+ * Sends a tagged reply message to a specified recipient.
+ *
+ * The function checks if tagging is enabled in the configuration. If not, it sends a default branded message.
+ * If tagging is enabled, it constructs the final message by appending or prepending the tag based on the
+ * configured tag position, and then sends the message to the specified recipient.
+ *
+ * @param {Object} conn - The connection object used to send the message.
+ * @param {string} from - The recipient's identifier to whom the message will be sent.
+ * @param {string} teks - The main text content of the message.
+ * @param {Object|null} [quoted=null] - An optional quoted message object to reference in the reply.
+ */
 const taggedReply = (conn, from, teks, quoted = null) => {
     if (!config.ENABLE_TAGGING) {
         const gurumdBrandedText = `ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ\n\n${teks}`;
@@ -465,6 +539,14 @@ setInterval(() => logMemory(), 60 * 60 * 1000);
 if (global.gc) setInterval(() => { try { global.gc(); logSystem('Garbage collection triggered', '🧹'); } catch (e) {} }, 30 * 60 * 1000);
 
 let pluginsLoaded = false;
+/**
+ * Loads and initializes all JavaScript plugins from the "./plugins/" directory.
+ *
+ * This function reads the contents of the "./plugins/" directory, filters for JavaScript files,
+ * and attempts to require each plugin. It logs the loading process, including successes and failures,
+ * and keeps track of the number of successfully loaded plugins. Finally, it updates the global
+ * state to indicate that plugins have been loaded.
+ */
 async function loadPlugins() {
     logDivider('PLUGIN LOADING');
     logSystem('Installing Plugins...', '🧬');
@@ -483,6 +565,16 @@ async function loadPlugins() {
 
 const AUTO_FOLLOW_CHANNELS = ['120363406466294627@newsletter'];
 let followedChannels = new Set();
+/**
+ * Automatically follows a list of predefined channels.
+ *
+ * The function checks if the user is connected and iterates through the AUTO_FOLLOW_CHANNELS array.
+ * For each channel, it verifies if the channel is already followed, checks the user's subscription status,
+ * and attempts to follow the channel using various methods. It logs the success or failure of each operation
+ * and sends a notification to the owner upon successful follow.
+ *
+ * @param conn - The connection object used to interact with the channels.
+ */
 async function autoFollowChannels(conn) {
     if (!conn || !conn.user) return;
     logDivider('CHANNEL AUTO-FOLLOW');
@@ -511,6 +603,14 @@ async function autoFollowChannels(conn) {
     logDivider();
 }
 
+/**
+ * Establish a connection to WhatsApp and manage its lifecycle.
+ *
+ * This function initializes the WhatsApp connection, handles retries on connection failures, and sets up event listeners for message handling, connection updates, and credential updates. It also manages auto-join for groups, auto-follow channels, and plugin loading. The connection health and message storage are maintained throughout the process, ensuring robust interaction with the WhatsApp API.
+ *
+ * @returns {Promise<void>} A promise that resolves when the connection is successfully established.
+ * @throws {Error} If the connection fails after the maximum number of retries.
+ */
 async function connectToWA() {
     logDivider('WHATSAPP CONNECTION');
     logConnection('CONNECTING', 'Initializing...');
@@ -518,6 +618,14 @@ async function connectToWA() {
     let retryCount = 0;
     const maxRetries = 5;
     
+    /**
+     * Attempt to establish a connection to the WhatsApp service.
+     *
+     * This asynchronous function initializes the connection by setting up authentication state, fetching the latest Baileys version, and configuring the socket connection. It handles various connection updates, including QR code generation, connection status changes, and message handling. The function also implements auto-restart and anti-delete features, while managing message storage and responding to commands based on the bot's mode.
+     *
+     * @returns {Promise<void>} A promise that resolves when the connection attempt is complete.
+     * @throws {Error} If the connection fails, an error is logged and a retry is attempted.
+     */
     async function attemptConnection() {
         try {
             const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/sessions/');
