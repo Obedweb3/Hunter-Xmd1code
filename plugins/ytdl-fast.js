@@ -38,7 +38,15 @@ const API_ENDPOINTS = {
 // ==================== UTILITY FUNCTIONS ====================
 
 /**
- * Format numbers with K/M suffix
+ * Format numbers with K/M suffix.
+ *
+ * This function takes a number and formats it to a string representation with
+ * appropriate suffixes. If the number is greater than or equal to one million,
+ * it divides the number by one million and appends 'M'. If the number is
+ * greater than or equal to one thousand, it divides the number by one thousand
+ * and appends 'K'. If the number is zero or undefined, it returns '0'.
+ *
+ * @param {number} num - The number to format.
  */
 function formatNumber(num) {
     if (!num) return '0';
@@ -61,7 +69,7 @@ function formatDuration(timestamp) {
 }
 
 /**
- * Create progress bar visualization
+ * Creates a progress bar visualization.
  */
 function createProgressBar(current, total, size = 10) {
     const filled = Math.round((current / total) * size);
@@ -86,7 +94,13 @@ function extractVideoID(url) {
 }
 
 /**
- * Smart API selector with health checking
+ * Selects the best API endpoint based on health checks.
+ *
+ * This function checks the stability of API endpoints based on the provided type, either 'video' or 'audio'.
+ * It first attempts to connect to stable APIs using a health check. If none of the stable APIs respond,
+ * it defaults to returning the first available endpoint from the list.
+ *
+ * @param {string} type - The type of API to select, either 'video' or 'audio'.
  */
 async function selectBestAPI(type) {
     const endpoints = type === 'video' ? API_ENDPOINTS.VIDEO : API_ENDPOINTS.AUDIO;
@@ -740,6 +754,16 @@ cmd({
 }, async (conn, mek, m, { from, reply }) => {
     await conn.sendMessage(from, { react: { text: "🔍", key: mek.key } });
     
+    /**
+     * Checks the availability of a given API endpoint.
+     *
+     * This function attempts to send a HEAD request to the specified URL using axios.
+     * If the request is successful within the timeout period, it returns a success message
+     * with the provided name. If the request fails, it returns a failure message with the name.
+     *
+     * @param {string} name - The name of the API to be checked.
+     * @param {string} url - The URL of the API endpoint to check.
+     */
     const checkAPI = async (name, url) => {
         try {
             await axios.head(url, { timeout: 5000 });
