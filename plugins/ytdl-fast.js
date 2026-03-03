@@ -337,7 +337,7 @@ cmd({
         // Send thumbnail as view once
         await conn.sendMessage(from, {
             image: { url: videoInfo.thumbnail },
-            caption: `🎵 *${isVideo ? 'Video' : 'Audio'} Ready:*\n> ${videoInfo.title}\n> ${videoInfo.author}\n\n> © ᴄʀᴇᴀᴛᴇᴅ ʙʏ GuruTech`,
+            caption: `🎵 *${isVideo ? 'Video' : 'Audio'} Ready:*\n> ${videoInfo.title}\n> ${videoInfo.author}\n\n> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴏʙᴇᴅ ᴛᴇᴄʜ`,
             viewOnce: true
         }, { quoted: mek });
 
