@@ -81,7 +81,8 @@ const clearTempDir = () => {
 
 // Clear the temp directory every 5 minutes
 setInterval(clearTempDir, 5 * 60 * 1000)
-
+console.log('Attempting to load MEGA URL:', process.env.MEGA_URL);
+const file = File.fromURL(process.env.MEGA_URL);
 //===================SESSION-AUTH============================
 if (!fs.existsSync(__dirname + '/sessions/creds.json')) {
   if (!config.SESSION_ID) return console.log('Please add your session to SESSION_ID env !!')
