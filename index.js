@@ -68,6 +68,13 @@ if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir)
 }
 
+/**
+ * Clears the temporary directory by deleting all files within it.
+ *
+ * The function reads the contents of the `tempDir` directory and iterates over each file.
+ * For each file, it attempts to delete it using `fs.unlink`. If any errors occur during
+ * reading the directory or deleting files, they are thrown to be handled by the caller.
+ */
 const clearTempDir = () => {
   fs.readdir(tempDir, (err, files) => {
     if (err) throw err
@@ -103,6 +110,14 @@ let conn // ✅ GLOBAL conn declaration
 
 //=============================================
 
+/**
+ * Establish a connection to WhatsApp and handle various events.
+ *
+ * This function initiates a connection to WhatsApp using multi-file authentication state and the latest Baileys version. It sets up event listeners for connection updates, credential updates, message updates, and group participant updates. It also manages reconnection attempts and plugin installations upon successful connection. The function processes incoming messages, executes commands, and handles reactions based on configuration settings.
+ *
+ * @returns {Promise<void>} A promise that resolves when the connection is established and event listeners are set up.
+ * @throws {Error} If the connection fails or if there are errors during post-connect setup.
+ */
 async function connectToWA() {
   try {
     console.log("[ ♻ ] Connecting to WhatsApp ⏳️...")
@@ -262,6 +277,9 @@ conn?.ev?.on('messages.update', async updates => {
   const isBotAdmins = isGroup ? groupAdmins.includes(botNumber2) : false
   const isAdmins = isGroup ? groupAdmins.includes(sender) : false
   const isReact = m.message.reactionMessage ? true : false
+  /**
+   * Sends a message with the specified text.
+   */
   const reply = (teks) => {
   conn.sendMessage(from, { text: teks }, { quoted: mek })
   }
