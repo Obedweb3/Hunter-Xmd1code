@@ -51,6 +51,9 @@ class MediaEngine {
     }
 
     // Update API health (success = +5, fail = -15)
+    /**
+     * Updates the health of the API based on the success status.
+     */
     reportAPIHealth(api, success) {
         if (success) {
             api.health = Math.min(100, api.health + 5);
@@ -60,11 +63,17 @@ class MediaEngine {
     }
 
     // Generate unique session ID
+    /**
+     * Generates a random ID as a hexadecimal string.
+     */
     generateId() {
         return crypto.randomBytes(4).toString('hex').toUpperCase();
     }
 
     // Smart cache with 5min TTL
+    /**
+     * Retrieves cached data for a given key if it is still valid.
+     */
     getCache(key) {
         const cached = this.cache.get(key);
         if (cached && (Date.now() - cached.time) < 300000) {
@@ -74,6 +83,9 @@ class MediaEngine {
         return null;
     }
 
+    /**
+     * Stores data in the cache with a timestamp and removes the oldest entry if the cache exceeds 50 items.
+     */
     setCache(key, data) {
         this.cache.set(key, { data, time: Date.now() });
         if (this.cache.size > 50) {
@@ -82,6 +94,9 @@ class MediaEngine {
         }
     }
 
+    /**
+     * Clears the cache.
+     */
     clearCache() {
         this.cache.clear();
     }
@@ -616,6 +631,16 @@ cmd({
 });
 
 // Helper function
+/**
+ * Formats a number into a more readable string representation.
+ *
+ * The function checks if the input number is valid. If not, it returns '0'.
+ * It then converts the number to an integer and formats it into millions (M)
+ * or thousands (K) if applicable, rounding to one decimal place.
+ * If the number is less than 1000, it simply returns the number as a string.
+ *
+ * @param {number|string} num - The number to format, which can be a number or a string representation of a number.
+ */
 function formatNumber(num) {
     if (!num) return '0';
     num = parseInt(num);
