@@ -57,7 +57,7 @@ cmd({
 
         // Update status
         await conn.sendMessage(from, {
-            text: `📥 *Processing ${isVideo ? 'VIDEO' : 'AUDIO'}:*\n🎵 ${videoInfo.title}\n👤 ${videoInfo.author}\n⏱️ Duration: ${videoInfo.duration}\n\n⏳ Getting ${isVideo ? 'video' : 'audio'}...`,
+            text: `📥 *ᴘʀᴏᴄᴇꜱꜱɪɴɢ ${isVideo ? 'ᴠɪᴅᴇᴏ' : 'ᴀᴜᴅɪᴏ'}:*\n🎵 ${videoInfo.title}\n👤 ${videoInfo.author}\n⏱️ Duration: ${videoInfo.duration}\n\n⏳ Getting ${isVideo ? 'video' : 'audio'}...`,
             edit: statusMsg.key
         });
 
