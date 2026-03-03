@@ -364,6 +364,16 @@ cmd({
 });
 
 // Helper function to format views
+/**
+ * Formats a number into a more readable string representation.
+ *
+ * The function checks if the input number is valid and then formats it based on its size.
+ * If the number is greater than or equal to one million, it converts it to millions with one decimal place.
+ * If the number is greater than or equal to one thousand, it converts it to thousands with one decimal place.
+ * Otherwise, it returns the number as a string.
+ *
+ * @param {number} num - The number to be formatted.
+ */
 function formatNumber(num) {
     if (!num) return '0';
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
