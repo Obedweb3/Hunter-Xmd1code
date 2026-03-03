@@ -10,6 +10,16 @@ const path = require('path');
 // ═══════════════════════════════════════════════════════════════
 
 // Helper function to format views
+/**
+ * Formats a number into a more readable string representation.
+ *
+ * The function checks if the input number is falsy, returning '0' if so.
+ * It then formats the number into millions (M) if it is greater than or equal to 1,000,000,
+ * or into thousands (K) if it is greater than or equal to 1,000.
+ * If the number is less than 1,000, it simply converts it to a string.
+ *
+ * @param {number} num - The number to be formatted.
+ */
 function formatNumber(num) {
     if (!num) return '0';
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
