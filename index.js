@@ -572,21 +572,59 @@ async function connectToWA() {
                     logConnection('READY', 'Bot connected to WhatsApp');
                     logDivider();
 
-                    let up = `*✨ HELLOW HUNTER XMD  LEGENTS! ✨*
+                 let up = `╔══════════════════════════════════════════════════════════╗
+║  🤖 *SYSTEM INITIALIZATION COMPLETE*                      ║
+║  ⚡ *HUNTER XMD PRO v5.1* — ONLINE & OPERATIONAL          ║
+╚══════════════════════════════════════════════════════════╝
 
-╭─〔 *HUNTER XMD PRO* 〕  
-├─▸ *SYMPLICITY. SPEED. POWERED . BY OBED TECH |*  
-╰─➤ *HERE THERE ARE NEW WHATSAPP SIDEKICK!*
+*👋 Welcome back, Commander!*
 
-♦️ THANK YOU FOR CHOOSING  HUNTER XMD PRO ♦️!
+╭━━━〔 *BOT INTELLIGENCE CORE* 〕━━━╮
+┃  🎯 *Status:*     Fully Armed & Operational
+┃  🧠 *AI Level:*   Advanced Neural Processing
+┃  ⚡ *Latency:*    Ultra-Low Response Time
+┃  🛡️ *Security:*   Military-Grade Encryption
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭──〔 🔗 QUICK LINKS 〕  
-├─ ⭐ *DONT FORGET TO GIVE AS STAR AND FORK:*  
-│   FORK THIS [HERE](https://github.com/Obedweb/Hunter-Xmd1)!  
-╰─🛠️ *Prefix:* \`${prefix}\`
+*📊 SYSTEM METRICS:*
+• Prefix: \`${prefix}\` 
+• Environment: ${process.env.NODE_ENV || 'production'}
+• Platform: ${isHeroku ? '☁️ Heroku Cloud' : '🖥️ Dedicated Server'}
+• Uptime: ${runtime(process.uptime())}
 
-> _HUNTER XMD PRO • ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴏʙᴇᴅ ᴛᴇᴄʜ_`;
-                    conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/karm5n.jpg` }, caption: up });
+╭━━━〔 *QUICK COMMAND DECK* 〕━━━╮
+┃  🔧 *.menu*     → Access Full Arsenal
+┃  ⚙️  *.settings* → Configure Preferences  
+┃  📈 *.status*   → System Diagnostics
+┃  🆘 *.help*     → Emergency Support
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+*🌟 PRO TIP:* Use \`${prefix}menu\` to unlock all 200+ commands!
+
+╭━━━〔 *DEVELOPER NETWORK* 〕━━━╮
+┃  🚀 *GitHub:*  github.com/Obedweb/Hunter-Xmd1
+┃  ⭐ *Star & Fork* to support development!
+┃  📢 *Updates:* Auto-sync enabled
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+*🔥 FEATURES ACTIVE:*
+✓ Anti-Delete Protection  ✓ Auto-Status View
+✓ Media Recovery          ✓ Smart Auto-Reply
+✓ Channel Auto-Follow     ✓ Premium Stickers
+
+╔══════════════════════════════════════════════════════════╗
+║  💀 *HUNTER XMD PRO* — *POWERED BY OBED TECH* 💀          ║
+║  🏆 "Precision. Speed. Dominance."                        ║
+╚══════════════════════════════════════════════════════════╝
+
+> _Initializing neural pathways..._
+> _Establishing secure channels..._
+> _✅ READY FOR DEPLOYMENT_`;
+
+conn.sendMessage(conn.user.id, { 
+    image: { url: `https://files.catbox.moe/karm5n.jpg` }, 
+    caption: up 
+});
                 }
             });
 
