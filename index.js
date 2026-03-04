@@ -1,3 +1,21 @@
+// === REQUIRED IMPORTS ===
+const readline = require('readline');  // ADD THIS LINE
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const util = require('util');
+const axios = require('axios');
+const Crypto = require('crypto');
+const express = require('express');
+const bodyparser = require('body-parser');
+const P = require('pino');
+const chalk = require('chalk');
+const qrcode = require('qrcode-terminal');
+const ff = require('fluent-ffmpeg');
+const FileType = require('file-type');
+const { File } = require('megajs');
+const { fromBuffer } = require('file-type');
+const StickersTypes = require('wa-sticker-formatter');
 // === Memory Optimization - Safe for all hosts (Heroku, Railway, Render, etc.) ===
 process.env.NODE_OPTIONS = '--max-old-space-size=384';
 process.env.BAILEYS_MEMORY_OPTIMIZED = 'true';
