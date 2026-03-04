@@ -3,7 +3,7 @@ process.env.NODE_OPTIONS = '--max-old-space-size=384';
 process.env.BAILEYS_MEMORY_OPTIMIZED = 'true';
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 
-// === REQUIRED IMPORTS ===
+// === REQUIRED IMPORTS - ALL IN ONE PLACE ===
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -20,8 +20,9 @@ const FileType = require('file-type');
 const { File } = require('megajs');
 const { fromBuffer } = require('file-type');
 const StickersTypes = require('wa-sticker-formatter');
-const readline = require('readline');  // ONLY ONE readline import
+const readline = require('readline');
 
+// === BAILEYS IMPORT ===
 const baileys = require('@whiskeysockets/baileys');
 const makeWASocket = baileys.default;
 const {
@@ -47,10 +48,8 @@ const {
   fetchLatestBaileysVersion,
   Browsers
 } = baileys;
-// === SIMPLIFIED LOGS DESIGN - Compatible with all environments ===
-const chalk = require('chalk');
 
-// Color scheme
+// === SIMPLIFIED LOGS DESIGN ===
 const colors = {
   primary: '#FF6B6B',
   success: '#4ECDC4',
@@ -60,7 +59,7 @@ const colors = {
   error: '#FF6B6B'
 };
 
-// Simple banner without external dependencies
+// Simple banner
 function printBanner() {
   console.log(chalk.hex(colors.primary).bold('╔══════════════════════════════════════════════════════════╗'));
   console.log(chalk.hex(colors.success).bold('║           HUNTERXND_PRO • ULTIMATE WHATSAPP BOT • V5.1PRO           ║'));
@@ -68,7 +67,7 @@ function printBanner() {
   console.log('');
 }
 
-// Enhanced Log Functions (simplified)
+// Log Functions
 function logSuccess(message, emoji = '✅') {
   console.log(`${emoji} ${chalk.hex(colors.success).bold(message)}`);
 }
@@ -89,7 +88,6 @@ function logSystem(message, emoji = '⚙️') {
   console.log(`${emoji} ${chalk.hex(colors.system).bold(message)}`);
 }
 
-// Beautiful Divider
 function logDivider(text = '') {
   const dividerLength = 60;
   const textLength = text.length;
@@ -104,41 +102,6 @@ function logDivider(text = '') {
   }
 }
 
-// Message Log with timestamp and color
-function logMessage(type, from, content = '', extra = '') {
-  const timestamp = chalk.gray(`[${new Date().toLocaleTimeString()}]`);
-  const types = {
-    'RECEIVED': { emoji: '📥', color: colors.success },
-    'SENT': { emoji: '📤', color: colors.info },
-    'COMMAND': { emoji: '⚡', color: colors.warning },
-    'EVENT': { emoji: '🎯', color: colors.system },
-    'STATUS': { emoji: '📱', color: colors.primary }
-  };
-  
-  const typeInfo = types[type] || { emoji: '📝', color: colors.info };
-  const fromDisplay = chalk.hex(typeInfo.color).bold(from);
-  const contentDisplay = content ? chalk.white(content) : '';
-  const extraDisplay = extra ? chalk.gray(extra) : '';
-  
-  console.log(`${timestamp} ${typeInfo.emoji} ${fromDisplay} ${contentDisplay} ${extraDisplay}`);
-}
-
-// Connection Status Log
-function logConnection(status, details = '') {
-  const statusIcons = {
-    'CONNECTING': { icon: '🔄', color: colors.warning },
-    'CONNECTED': { icon: '✅', color: colors.success },
-    'DISCONNECTED': { icon: '❌', color: colors.error },
-    'RECONNECTING': { icon: '🔄', color: colors.warning },
-    'READY': { icon: '🚀', color: colors.system }
-  };
-  
-  const statusInfo = statusIcons[status] || { icon: '❓', color: colors.info };
-  const statusText = chalk.hex(statusInfo.color).bold(status);
-  console.log(`\n${statusInfo.icon} ${statusText} ${details}\n`);
-}
-
-// Memory Usage Log - FIXED VERSION (no broken strings, no invalid escapes)
 function logMemory() {
   const used = process.memoryUsage();
   const rss = Math.round(used.rss / 1024 / 1024);
@@ -152,7 +115,6 @@ function logMemory() {
   console.log(chalk.gray(heap + 'MB / 512MB'));
 }
 
-// Plugin Loader Log
 function logPlugin(name, version, status = 'LOADED') {
   const statusIcons = {
     'LOADED': { icon: '✅', color: colors.success },
@@ -168,85 +130,7 @@ function logPlugin(name, version, status = 'LOADED') {
   console.log(`   ${statusInfo.icon} ${pluginName} ${pluginVersion} ${chalk.gray(status)}`);
 }
 
-// Command Execution Log
-function logCommand(user, command, success = true) {
-  const userDisplay = chalk.hex(colors.system)(user);
-  const commandDisplay = chalk.hex(colors.info).bold(command);
-  const status = success ? chalk.hex(colors.success)('✓') : chalk.hex(colors.error)('✗');
-  
-  console.log(`🎮 ${userDisplay} ${chalk.gray('executed')} ${commandDisplay} ${status}`);
-}
-
-// Status Update Log
-function logStatusUpdate(action, target, details = '') {
-  const actions = {
-    'VIEWED': { icon: '👁️', color: colors.success },
-    'REACTED': { icon: '🎭', color: colors.warning },
-    'SAVED': { icon: '💾', color: colors.info },
-    'FOLLOWED': { icon: '➕', color: colors.system }
-  };
-  
-  const actionInfo = actions[action] || { icon: '📝', color: colors.info };
-  const targetDisplay = chalk.hex(actionInfo.color).bold(target);
-  const detailsDisplay = details ? chalk.gray(`(${details})`) : '';
-  
-  console.log(`${actionInfo.icon} ${targetDisplay} ${chalk.gray(action.toLowerCase())} ${detailsDisplay}`);
-}
-
-// Media Log
-function logMedia(type, size, from = '') {
-  const types = {
-    'IMAGE': { icon: '🖼️', color: colors.success },
-    'VIDEO': { icon: '🎬', color: colors.warning },
-    'AUDIO': { icon: '🎵', color: colors.info },
-    'STICKER': { icon: '🩹', color: colors.system },
-    'DOCUMENT': { icon: '📄', color: colors.primary }
-  };
-  
-  const typeInfo = types[type] || { icon: '📦', color: colors.info };
-  const sizeDisplay = chalk.gray(`(${(size / (1024 * 1024)).toFixed(2)} MB)`);
-  const fromDisplay = from ? chalk.hex(colors.system)(`from ${from}`) : '';
-  
-  console.log(`${typeInfo.icon} ${chalk.hex(typeInfo.color).bold(type)} ${sizeDisplay} ${fromDisplay}`);
-}
-
-// Group Activity Log
-function logGroupAction(action, group, user = '') {
-  const actions = {
-    'JOIN': { icon: '👥', color: colors.success },
-    'LEAVE': { icon: '👋', color: colors.error },
-    'PROMOTE': { icon: '⬆️', color: colors.warning },
-    'DEMOTE': { icon: '⬇️', color: colors.info },
-    'MESSAGE': { icon: '💬', color: colors.system }
-  };
-  
-  const actionInfo = actions[action] || { icon: '📝', color: colors.info };
-  const groupDisplay = chalk.hex(actionInfo.color).bold(group);
-  const userDisplay = user ? chalk.hex(colors.system)(`by ${user}`) : '';
-  
-  console.log(`${actionInfo.icon} ${groupDisplay} ${chalk.gray(action.toLowerCase())} ${userDisplay}`);
-}
-
-// Performance Log
-function logPerformance(operation, timeMs) {
-  const color = timeMs < 100 ? colors.success : 
-                timeMs < 500 ? colors.warning : 
-                timeMs < 1000 ? colors.info : colors.error;
-  
-  const timeColor = timeMs < 100 ? 'fast' : 
-                    timeMs < 500 ? 'good' : 
-                    timeMs < 1000 ? 'slow' : 'critical';
-  
-  const timeDisplay = chalk.hex(color)(`${timeMs}ms`);
-  const operationDisplay = chalk.hex(colors.system)(operation);
-  
-  console.log(
-    `⚡ ${operationDisplay} ${chalk.gray('completed in')} ${timeDisplay} ` +
-    chalk.gray(`(${timeColor})`)
-  );
-}
-
-// Initialize logging system
+// Initialize logging
 function initLogging() {
   console.clear();
   printBanner();
@@ -254,61 +138,34 @@ function initLogging() {
   logSystem('Starting HunterXmd pro WhatsApp Bot...', '🚀');
 }
 
-// Keep original functions for compatibility
-function gurumdStyle(text, type = 'normal') {
-    const styles = {
-        normal: chalk.hex(colors.primary).bold(`ᴳᵁᴿᵁᴹᴰ ${text}`),
-        faded: chalk.hex('#888888').italic(`ᴳᵁᴿᵁᴹᴰ ${text}`),
-        success: chalk.hex(colors.success).bold(`✓ ᴳᵁᴿᵁᴹᴰ ${text}`),
-        error: chalk.hex(colors.error).bold(`✗ ᴳᵁᴿᵁᴹᴰ ${text}`),
-        warning: chalk.hex(colors.warning).bold(`⚠ ᴳᵁᴿᵁᴹᴰ ${text}`),
-        info: chalk.hex(colors.info).bold(`ℹ ᴳᵁᴿᵁᴹᴰ ${text}`)
-    };
-    return styles[type] || styles.normal;
-}
-
-// Initialize logging
 initLogging();
 
-const l = console.log
-const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions')
-const { AntiDelDB, initializeAntiDeleteSettings, setAnti, getAnti, getAllAntiDeleteSettings, saveContact, loadMessage, getName, getChatSummary, saveGroupMetadata, getGroupMetadata, saveMessageCount, getInactiveGroupMembers, getGroupMembersMessageCount, saveMessage } = require('./data')
-const fs = require('fs')
-const ff = require('fluent-ffmpeg')
-const P = require('pino')
-const config = require('./config')
-const GroupEvents = require('./lib/groupevents')
-const qrcode = require('qrcode-terminal')
-const StickersTypes = require('wa-sticker-formatter')
-const util = require('util')
-const { sms, AntiDelete } = require('./lib')
-const FileType = require('file-type')
-const axios = require('axios')
-const { File } = require('megajs')
-const { fromBuffer } = require('file-type')
-const bodyparser = require('body-parser')
-const os = require('os')
-const Crypto = require('crypto')
-const path = require('path')
-const prefix = config.PREFIX
+// === LOAD FUNCTIONS & CONFIG ===
+const l = console.log;
+const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions');
+const { AntiDelDB, initializeAntiDeleteSettings, setAnti, getAnti, getAllAntiDeleteSettings, saveContact, loadMessage, getName, getChatSummary, saveGroupMetadata, getGroupMetadata, saveMessageCount, getInactiveGroupMembers, getGroupMembersMessageCount, saveMessage } = require('./data');
+const config = require('./config');
+const GroupEvents = require('./lib/groupevents');
+const { sms, AntiDelete } = require('./lib');
 
-const ownerNumber = ['25491637868@s.whatsapp.net'];  
+const prefix = config.PREFIX;
+const ownerNumber = ['25491637868@s.whatsapp.net'];
 
-// ========== AUTO RESTART CONFIGURATION ==========
-const AUTO_RESTART_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+// === AUTO RESTART CONFIGURATION ===
+const AUTO_RESTART_INTERVAL = 6 * 60 * 60 * 1000;
 let restartTimer = null;
 
 function restartBot() {
-    logWarning('🔄 AUTO-RESTART INITIATED', '🔄');
-    logSystem(`Restarting after ${AUTO_RESTART_INTERVAL/3600000} hours...`, '⏰');
-    if (restartTimer) clearTimeout(restartTimer);
-    process.exit(0);
+  logWarning('🔄 AUTO-RESTART INITIATED', '🔄');
+  logSystem(`Restarting after ${AUTO_RESTART_INTERVAL/3600000} hours...`, '⏰');
+  if (restartTimer) clearTimeout(restartTimer);
+  process.exit(0);
 }
 
 function scheduleAutoRestart() {
-    if (restartTimer) clearTimeout(restartTimer);
-    restartTimer = setTimeout(restartBot, AUTO_RESTART_INTERVAL);
-    logSystem(`Auto-restart scheduled in ${AUTO_RESTART_INTERVAL/3600000} hours`, '⏰');
+  if (restartTimer) clearTimeout(restartTimer);
+  restartTimer = setTimeout(restartBot, AUTO_RESTART_INTERVAL);
+  logSystem(`Auto-restart scheduled in ${AUTO_RESTART_INTERVAL/3600000} hours`, '⏰');
 }
 
 // ========== GLOBAL MESSAGE STORE FOR ANTIDELETE ==========
