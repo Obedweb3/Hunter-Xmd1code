@@ -264,7 +264,7 @@ function validateConfig() {
 }
 if (!validateConfig()) { logError('Invalid configuration, check config.js', '❌'); process.exit(1); }
 
-const express = require("express");
+// === EXPRESS SETUP ===
 const app = express();
 const port = process.env.PORT || 9090;
 
