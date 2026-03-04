@@ -572,57 +572,33 @@ async function connectToWA() {
                     logConnection('READY', 'Bot connected to WhatsApp');
                     logDivider();
 
-                 let up = `╔══════════════════════════════════════════════════════════╗
-║  🤖 *SYSTEM INITIALIZATION COMPLETE*                      ║
-║  ⚡ *HUNTER XMD PRO v5.1* — ONLINE & OPERATIONAL          ║
-╚══════════════════════════════════════════════════════════╝
+                let up = `╔══════════════════════════════════════════════════╗
+║  🔥 *HUNTER XMD PRO* — *CONNECTED* 🔥              ║
+╚══════════════════════════════════════════════════╝
 
-*👋 Welcome back, Commander!*
+╭─〔 *SYSTEM STATUS* 〕─╮
+┃  ✅ Status:    *ONLINE*
+┃  ⚡ Version:   *v5.1 PRO*
+┃  🔧 Prefix:    \`${prefix}\`
+┃  🖥️ Platform:  ${isHeroku ? '☁️ Heroku' : '🖥️ Server'}
+┃  ⏱️ Uptime:    ${runtime(process.uptime())}
+╰───────────────────────╯
 
-╭━━━〔 *BOT INTELLIGENCE CORE* 〕━━━╮
-┃  🎯 *Status:*     Fully Armed & Operational
-┃  🧠 *AI Level:*   Advanced Neural Processing
-┃  ⚡ *Latency:*    Ultra-Low Response Time
-┃  🛡️ *Security:*   Military-Grade Encryption
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+╭─〔 *QUICK ACCESS* 〕─╮
+┃  📜 *.menu*    → Commands
+┃  ⚙️ *.settings* → Config
+┃  📊 *.status*  → System Info
+┃  ❓ *.help*    → Support
+╰───────────────────────╯
 
-*📊 SYSTEM METRICS:*
-• Prefix: \`${prefix}\` 
-• Environment: ${process.env.NODE_ENV || 'production'}
-• Platform: ${isHeroku ? '☁️ Heroku Cloud' : '🖥️ Dedicated Server'}
-• Uptime: ${runtime(process.uptime())}
+🚀 *GitHub:* github.com/Obedweb/Hunter-Xmd1
+⭐ *Star the repo to support!*
 
-╭━━━〔 *QUICK COMMAND DECK* 〕━━━╮
-┃  🔧 *.menu*     → Access Full Arsenal
-┃  ⚙️  *.settings* → Configure Preferences  
-┃  📈 *.status*   → System Diagnostics
-┃  🆘 *.help*     → Emergency Support
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-*🌟 PRO TIP:* Use \`${prefix}menu\` to unlock all 200+ commands!
-
-╭━━━〔 *DEVELOPER NETWORK* 〕━━━╮
-┃  🚀 *GitHub:*  github.com/Obedweb/Hunter-Xmd1
-┃  ⭐ *Star & Fork* to support development!
-┃  📢 *Updates:* Auto-sync enabled
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-*🔥 FEATURES ACTIVE:*
-✓ Anti-Delete Protection  ✓ Auto-Status View
-✓ Media Recovery          ✓ Smart Auto-Reply
-✓ Channel Auto-Follow     ✓ Premium Stickers
-
-╔══════════════════════════════════════════════════════════╗
-║  💀 *HUNTER XMD PRO* — *POWERED BY OBED TECH* 💀          ║
-║  🏆 "Precision. Speed. Dominance."                        ║
-╚══════════════════════════════════════════════════════════╝
-
-> _Initializing neural pathways..._
-> _Establishing secure channels..._
-> _✅ READY FOR DEPLOYMENT_`;
+*Powered by Obed Tech* 💀
+_Ready for deployment..._`;
 
 conn.sendMessage(conn.user.id, { 
-    image: { url: `https://files.catbox.moe/karm5n.jpg ` }, 
+    image: { url: \`https://files.catbox.moe/karm5n.jpg\` }, 
     caption: up 
 });
                 }
