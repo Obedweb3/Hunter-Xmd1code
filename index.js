@@ -1,5 +1,9 @@
+// === Memory Optimization - Safe for all hosts (Heroku, Railway, Render, etc.) ===
+process.env.NODE_OPTIONS = '--max-old-space-size=384';
+process.env.BAILEYS_MEMORY_OPTIMIZED = 'true';
+process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+
 // === REQUIRED IMPORTS ===
-const readline = require('readline');  // ADD THIS LINE
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -16,11 +20,8 @@ const FileType = require('file-type');
 const { File } = require('megajs');
 const { fromBuffer } = require('file-type');
 const StickersTypes = require('wa-sticker-formatter');
-// === Memory Optimization - Safe for all hosts (Heroku, Railway, Render, etc.) ===
-process.env.NODE_OPTIONS = '--max-old-space-size=384';
-process.env.BAILEYS_MEMORY_OPTIMIZED = 'true';
-process.env.NODE_ENV = process.env.NODE_ENV || 'production';
-const readline = require('readline');
+const readline = require('readline');  // ONLY ONE readline import
+
 const baileys = require('@whiskeysockets/baileys');
 const makeWASocket = baileys.default;
 const {
@@ -46,7 +47,6 @@ const {
   fetchLatestBaileysVersion,
   Browsers
 } = baileys;
-
 // === SIMPLIFIED LOGS DESIGN - Compatible with all environments ===
 const chalk = require('chalk');
 
