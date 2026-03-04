@@ -571,8 +571,8 @@ async function connectToWA() {
                     
                     logConnection('READY', 'Bot connected to WhatsApp');
                     logDivider();
-
-                let up = `╔══════════════════════════════════════════════════╗
+// =================== COMPACT STARTUP MESSAGE ===================
+let up = `╔══════════════════════════════════════════════════╗
 ║  🔥 *HUNTER XMD PRO* — *CONNECTED* 🔥              ║
 ╚══════════════════════════════════════════════════╝
 
@@ -598,9 +598,10 @@ async function connectToWA() {
 _Ready for deployment..._`;
 
 conn.sendMessage(conn.user.id, { 
-    image: { url: \`https://files.catbox.moe/karm5n.jpg\` }, 
+    image: { url: `https://files.catbox.moe/karm5n.jpg` }, 
     caption: up 
 });
+// ==============================================================
                 }
             });
 
