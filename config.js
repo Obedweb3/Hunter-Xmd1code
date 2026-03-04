@@ -15,7 +15,7 @@ module.exports = {
     ADMIN_EVENTS: process.env.ADMIN_EVENTS || "false",
     ANTI_LINK: process.env.ANTI_LINK || "true",
     MENTION_REPLY: process.env.MENTION_REPLY || "false",
-    MENU_IMAGE_URL: process.env.MENU_IMAGE_URL || "https://files.catbox.moe/k05k5r.jpg",
+    MENU_IMAGE_URL: process.env.MENU_IMAGE_URL || "https://files.catbox.moe/k05k5r.jpg ",
     PREFIX: process.env.PREFIX || ".",
     BOT_NAME: process.env.BOT_NAME || "𝐇𝐔𝐍𝐓𝐄𝐑 𝐗𝐌𝐃 PRO",
     STICKER_NAME: process.env.STICKER_NAME || "𝐇𝐔𝐍𝐓𝐄𝐑 𝐗𝐌𝐃 PRO",
@@ -25,7 +25,7 @@ module.exports = {
     OWNER_NUMBER: process.env.OWNER_NUMBER || "254701082940",
     OWNER_NAME: process.env.OWNER_NAME || "ObedTechX",
     DESCRIPTION: process.env.DESCRIPTION || "*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴏʙᴇᴅᴛᴇᴄʜ*",
-    ALIVE_IMG: process.env.ALIVE_IMG || "https://files.catbox.moe/k05k5r.jpg",
+    ALIVE_IMG: process.env.ALIVE_IMG || "https://files.catbox.moe/k05k5r.jpg ",
     LIVE_MSG: process.env.LIVE_MSG || "> Zinda Hun Yar *𝐇𝐔𝐍𝐓𝐄𝐑 𝐗𝐌𝐃 PRO*⚡",
     READ_MESSAGE: process.env.READ_MESSAGE || "false",
     AUTO_REACT: process.env.AUTO_REACT || "true",
@@ -48,5 +48,10 @@ module.exports = {
     ENABLE_TAGGING: process.env.ENABLE_TAGGING || "true",
     BOT_TAG_TEXT: process.env.BOT_TAG_TEXT || "ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ • ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴏʙᴇᴅ ᴛᴇᴄʜ",
     TAG_POSITION: process.env.TAG_POSITION || "start",
-    GROUP_INVITE_CODE: process.env.GROUP_INVITE_CODE || ""
+    GROUP_INVITE_CODE: process.env.GROUP_INVITE_CODE || "",
+    
+    // ⬇️ ADD DEPLOYMENT ESSENTIALS HERE ⬇️
+    PORT: process.env.PORT || 3000,
+    MONGODB_URI: process.env.MONGODB_URI || "",
+    WEBHOOK_URL: process.env.WEBHOOK_URL || ""
 };
