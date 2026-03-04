@@ -68,6 +68,9 @@ function printBanner() {
 }
 
 // Log Functions
+/**
+ * Logs a success message with an optional emoji.
+ */
 function logSuccess(message, emoji = '✅') {
   console.log(`${emoji} ${chalk.hex(colors.success).bold(message)}`);
 }
@@ -88,6 +91,9 @@ function logSystem(message, emoji = '⚙️') {
   console.log(`${emoji} ${chalk.hex(colors.system).bold(message)}`);
 }
 
+/**
+ * Logs a formatted divider with optional text.
+ */
 function logDivider(text = '') {
   const dividerLength = 60;
   const textLength = text.length;
@@ -102,6 +108,9 @@ function logDivider(text = '') {
   }
 }
 
+/**
+ * Logs the current memory usage of the process.
+ */
 function logMemory() {
   const used = process.memoryUsage();
   const rss = Math.round(used.rss / 1024 / 1024);
@@ -115,6 +124,9 @@ function logMemory() {
   console.log(chalk.gray(heap + 'MB / 512MB'));
 }
 
+/**
+ * Logs the plugin's name, version, and status with an icon.
+ */
 function logPlugin(name, version, status = 'LOADED') {
   const statusIcons = {
     'LOADED': { icon: '✅', color: colors.success },
@@ -131,6 +143,9 @@ function logPlugin(name, version, status = 'LOADED') {
 }
 
 // Initialize logging
+/**
+ * Initializes the logging system for the application.
+ */
 function initLogging() {
   console.clear();
   printBanner();
@@ -155,6 +170,9 @@ const ownerNumber = ['25491637868@s.whatsapp.net'];
 const AUTO_RESTART_INTERVAL = 6 * 60 * 60 * 1000;
 let restartTimer = null;
 
+/**
+ * Initiates an auto-restart of the bot.
+ */
 function restartBot() {
   logWarning('🔄 AUTO-RESTART INITIATED', '🔄');
   logSystem(`Restarting after ${AUTO_RESTART_INTERVAL/3600000} hours...`, '⏰');
@@ -162,6 +180,9 @@ function restartBot() {
   process.exit(0);
 }
 
+/**
+ * Schedules an automatic restart of the bot after a specified interval.
+ */
 function scheduleAutoRestart() {
   if (restartTimer) clearTimeout(restartTimer);
   restartTimer = setTimeout(restartBot, AUTO_RESTART_INTERVAL);
