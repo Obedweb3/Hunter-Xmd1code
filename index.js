@@ -2,7 +2,7 @@
 process.env.NODE_OPTIONS = '--max-old-space-size=384';
 process.env.BAILEYS_MEMORY_OPTIMIZED = 'true';
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
-
+const readline = require('readline');
 const baileys = require('@whiskeysockets/baileys');
 const makeWASocket = baileys.default;
 const {
