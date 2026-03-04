@@ -12,9 +12,26 @@ module.exports = {
     const searchQuery = args.join(' ').trim();
 
     // Helper function to wait
+    /**
+     * Returns a promise that resolves after a specified number of milliseconds.
+     */
     const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     // Helper function for API calls with retry logic
+    /**
+     * Makes an API call with retry logic for handling rate limits and timeouts.
+     *
+     * The function attempts to fetch data from the specified URL up to a maximum number of retries.
+     * It incorporates a delay before each request to respect rate limits and implements exponential backoff
+     * for retries in case of rate limiting or timeouts. If the maximum number of retries is reached,
+     * the last error encountered is thrown.
+     *
+     * @param url - The URL to which the API request is made.
+     * @param maxRetries - The maximum number of retry attempts (default is 3).
+     * @param baseDelay - The base delay in milliseconds for exponential backoff (default is 2000).
+     * @returns The response from the API call.
+     * @throws Error If the maximum number of retries is reached or if a non-retryable error occurs.
+     */
     const apiCallWithRetry = async (url, maxRetries = 3, baseDelay = 2000) => {
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
