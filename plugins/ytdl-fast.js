@@ -4,6 +4,16 @@ const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
 
 // Helper function to format views
+/**
+ * Formats a number into a more readable string representation.
+ *
+ * The function checks if the input number is falsy, returning '0' if so.
+ * It then formats numbers in millions with a 'M' suffix and one decimal place,
+ * or in thousands with a 'K' suffix, also with one decimal place.
+ * If the number is less than 1000, it simply converts it to a string.
+ *
+ * @param {number} num - The number to format.
+ */
 function formatNumber(num) {
     if (!num) return '0';
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
