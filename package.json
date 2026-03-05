@@ -1,8 +1,8 @@
 {
   "name": "HUNTERXMD_PRO",
   "version": "4.5.0",
-  "description": "A WhatsApp Bot Created by ObedTech",
-  "main": "index.js",
+  "description": "A WhatsApp Bot Created by GuruTech",
+  "main": "index.cjs",
   "type": "commonjs",
   "scripts": {
     "start": "node index.js",
