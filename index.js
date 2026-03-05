@@ -511,6 +511,16 @@ async function autoFollowChannels(conn) {
     logDivider();
 }
 
+/**
+ * Establish a connection to WhatsApp using the Baileys library.
+ *
+ * This function initializes the connection process, handling retries and logging various connection states.
+ * It sets up event listeners for message handling, connection updates, and auto-follow channels.
+ * The function also manages message storage and deletion detection, ensuring that the bot remains responsive and functional.
+ *
+ * @returns {Promise<void>} A promise that resolves when the connection is successfully established.
+ * @throws {Error} If the connection fails after the maximum number of retries.
+ */
 async function connectToWA() {
     logDivider('WHATSAPP CONNECTION');
     logConnection('CONNECTING', 'Initializing...');
@@ -518,6 +528,14 @@ async function connectToWA() {
     let retryCount = 0;
     const maxRetries = 5;
     
+    /**
+     * Attempt to establish a connection to the WhatsApp socket.
+     *
+     * This function initializes the connection by setting up authentication state, fetching the latest Baileys version, and configuring the socket connection. It handles various connection updates, including QR code generation, reconnection logic, and message handling. Additionally, it manages auto-follow channels, message storage, and command processing, while ensuring proper logging and error handling throughout the process.
+     *
+     * @returns {Promise<void>} A promise that resolves when the connection attempt is complete.
+     * @throws {Error} If the connection fails, an error is logged and a retry is attempted.
+     */
     async function attemptConnection() {
         try {
             const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/sessions/');
