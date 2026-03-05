@@ -343,6 +343,13 @@ if (!isHeroku) {
 }
 
 // =================== SESSION CLEANUP FUNCTION ===================
+/**
+ * Clears all session data from the sessions directory.
+ *
+ * This function checks if the sessions directory exists and, if so, reads all files within it.
+ * It attempts to delete each file, logging a warning upon successful deletion of all session data.
+ * If any errors occur during the deletion process or while accessing the directory, they are caught and logged as errors.
+ */
 function clearSessionData() {
     try {
         const sessionPath = __dirname + '/sessions/';
@@ -545,6 +552,14 @@ async function connectToWA() {
     let retryCount = 0;
     const maxRetries = 5;
     
+    /**
+     * Attempt to establish a connection to the WhatsApp service.
+     *
+     * This function initializes the connection by setting up authentication state, fetching the latest version of the Baileys library, and configuring the socket connection with various parameters. It also includes error handling for session health, connection updates, and message processing, ensuring robust management of the connection lifecycle and message handling, including auto-reply and command processing.
+     *
+     * @returns {Promise<void>} A promise that resolves when the connection is successfully established or retries if it fails.
+     * @throws {Error} If the connection fails after the maximum number of retries.
+     */
     async function attemptConnection() {
         try {
             const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/sessions/');
@@ -573,6 +588,9 @@ async function connectToWA() {
             });
 
             // Monitor for session issues
+            /**
+             * Checks the health of the session and clears it if unhealthy.
+             */
             const checkSessionHealth = () => {
                 if (macErrorCount >= MAX_MAC_ERRORS || sessionCloseCount >= MAX_SESSION_CLOSES) {
                     logError(`Session unhealthy! MAC errors: ${macErrorCount}, Session closes: ${sessionCloseCount}`, '🔐');
