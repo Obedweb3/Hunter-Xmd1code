@@ -342,6 +342,27 @@ if (!isHeroku) {
     });
 }
 
+// =================== SESSION CLEANUP FUNCTION ===================
+function clearSessionData() {
+    try {
+        const sessionPath = __dirname + '/sessions/';
+        if (fs.existsSync(sessionPath)) {
+            const files = fs.readdirSync(sessionPath);
+            for (const file of files) {
+                if (file !== 'creds.json') {
+                    fs.unlinkSync(path.join(sessionPath, file));
+                }
+            }
+            if (fs.existsSync(sessionPath + 'creds.json')) {
+                fs.unlinkSync(sessionPath + 'creds.json');
+            }
+            logWarning('Cleared corrupted session data', '🧹');
+        }
+    } catch (e) {
+        logError(`Failed to clear session: ${e.message}`, '❌');
+    }
+}
+
 // =================== DIRECT BASE64 SESSION ===================
 (async () => {
     if (!fs.existsSync(__dirname + '/sessions/creds.json')) {
@@ -365,7 +386,10 @@ if (!isHeroku) {
                         fs.writeFileSync(__dirname + '/sessions/creds.json', JSON.stringify(creds, null, 2));
                         logSuccess('SESSION_ID successfully saved to creds.json', '✅');
                     } else logWarning('SESSION_ID appears invalid, falling back to pairing', '⚠️');
-                } catch (e) { logError(`Failed to process SESSION_ID: ${e.message}`, '❌'); }
+                } catch (e) { 
+                    logError(`Failed to process SESSION_ID: ${e.message}`, '❌'); 
+                    clearSessionData();
+                }
             }
         } else {
             logSystem('No session found. Starting pairing flow...', '🔗');
@@ -511,6 +535,10 @@ async function autoFollowChannels(conn) {
     logDivider();
 }
 
+// Track MAC errors for auto-session-clear
+let macErrorCount = 0;
+const MAX_MAC_ERRORS = 5;
+
 async function connectToWA() {
     logDivider('WHATSAPP CONNECTION');
     logConnection('CONNECTING', 'Initializing...');
@@ -531,21 +559,56 @@ async function connectToWA() {
                 browser: Browsers.macOS("Firefox"),
                 auth: state,
                 version,
-                pairingCode: !isHeroku && !fs.existsSync(__dirname + '/sessions/creds.json')
+                pairingCode: !isHeroku && !fs.existsSync(__dirname + '/sessions/creds.json'),
+                syncFullHistory: false,
+                markOnlineOnConnect: true,
+                keepAliveIntervalMs: 30000,
+                connectTimeoutMs: 60000,
+                defaultQueryTimeoutMs: 60000,
+                emitOwnEvents: true,
+                fireInitQueries: true,
+                shouldIgnoreJid: jid => isJidBroadcast(jid),
+                getMessage: async key => {
+                    return global.messageStore.get(key.id)?.message || proto.Message.fromObject({});
+                }
             });
+
+            // Handle MAC errors by monitoring logs
+            const originalEmit = conn.ev.emit;
+            conn.ev.emit = function(event, ...args) {
+                if (event === 'connection.update') {
+                    const update = args[0];
+                    if (update?.lastDisconnect?.error?.message?.includes('Bad MAC')) {
+                        macErrorCount++;
+                        logError(`Bad MAC error detected (${macErrorCount}/${MAX_MAC_ERRORS})`, '🔐');
+                        if (macErrorCount >= MAX_MAC_ERRORS) {
+                            logWarning('Too many MAC errors, clearing session...', '🧹');
+                            clearSessionData();
+                            macErrorCount = 0;
+                            process.exit(1);
+                        }
+                    }
+                }
+                return originalEmit.call(this, event, ...args);
+            };
 
             conn.ev.on('connection.update', (update) => {
                 const { connection, lastDisconnect, qr } = update;
                 if (qr && !isHeroku) { logSystem('Scan this QR to link:', '🔗'); qrcode.generate(qr, { small: true }); }
                 if (connection === 'close') {
-                    if (lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut) {
+                    const statusCode = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.statusCode;
+                    if (statusCode !== DisconnectReason.loggedOut) {
                         const retryDelay = Math.min(5000 * Math.pow(2, retryCount), 60000);
                         retryCount = Math.min(retryCount + 1, maxRetries);
                         logWarning(`Connection closed. Retrying in ${retryDelay/1000} seconds... (Attempt ${retryCount}/${maxRetries})`, '🔄');
                         setTimeout(connectToWA, retryDelay);
+                    } else {
+                        logError('Logged out from WhatsApp', '❌');
+                        clearSessionData();
                     }
                 } else if (connection === 'open') {
                     retryCount = 0;
+                    macErrorCount = 0;
                     connectionHealth.status = 'connected';
                     connectionHealth.lastMessage = Date.now();
                     
@@ -1224,6 +1287,20 @@ setTimeout(() => {
   connectToWA().then(conn => { global.conn = conn; }).catch(err => { logError(`Failed to connect: ${err.message}`, '❌'); });
 }, 4000);
 
-process.on("uncaughtException", (err) => { logError(`UNCAUGHT EXCEPTION: ${err.stack || err.message || err}`, '💥'); });
-process.on("unhandledRejection", (reason, p) => { logError(`UNHANDLED PROMISE REJECTION: ${reason}`, '💥'); });
+process.on("uncaughtException", (err) => { 
+    logError(`UNCAUGHT EXCEPTION: ${err.stack || err.message || err}`, '💥'); 
+    if (err.message && err.message.includes('Bad MAC')) {
+        logWarning('Bad MAC error detected, clearing session...', '🔐');
+        clearSessionData();
+        process.exit(1);
+    }
+});
+process.on("unhandledRejection", (reason, p) => { 
+    logError(`UNHANDLED PROMISE REJECTION: ${reason}`, '💥'); 
+    if (reason && reason.message && reason.message.includes('Bad MAC')) {
+        logWarning('Bad MAC error detected, clearing session...', '🔐');
+        clearSessionData();
+        process.exit(1);
+    }
+});
 process.on('exit', (code) => { logSystem(`Process exiting with code: ${code}`, '👋'); });
