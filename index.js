@@ -584,9 +584,12 @@ async function connectToWA() {
 ╰───────────────`;
 
 conn.sendMessage(conn.user.id, { 
-    image: { url: `https://files.catbox.moe/karm5n.jpg` }, 
+    image: { url: `https://files.catbox.moe/karm5n.jpg ` }, 
     caption: up 
 });
+                }
+            });
+
             conn.ev.on('creds.update', saveCreds);
           
             // ==================== FIXED ANTIDELETE - IMMEDIATE DETECTION ====================
@@ -1170,7 +1173,7 @@ conn.sendMessage(conn.user.id, {
                 for (let i of kon) {
                     list.push({
                         displayName: await conn.getName(i + '@s.whatsapp.net'),
-                        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${await conn.getName(i + '@s.whatsapp.net')}\nFN:ᴳᵁᴿᵁᴹᴰ\nitem1.TEL;waid=${i}\nitem1.X-ABLabel:Click here to chat\nitem2.EMAIL;type=INTERNET:techobed@example.com\nitem2.X-ABLabel:GitHub\nitem3.URL:https://github.com/Obedweb/Hunter-Xmd1\nitem3.X-ABLabel:GitHub\nitem4.ADR:;;Nairobi;;;;\nitem4.X-ABLabel:Region\nEND:VCARD`,
+                        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${await conn.getName(i + '@s.whatsapp.net')}\nFN:ᴳᵁᴿᵁᴹᴰ\nitem1.TEL;waid=${i}\nitem1.X-ABLabel:Click here to chat\nitem2.EMAIL;type=INTERNET:techobed@example.com\nitem2.X-ABLabel:GitHub\nitem3.URL:https://github.com/Obedweb/Hunter-Xmd1 \nitem3.X-ABLabel:GitHub\nitem4.ADR:;;Nairobi;;;;\nitem4.X-ABLabel:Region\nEND:VCARD`,
                     });
                 }
                 conn.sendMessage(jid, { contacts: { displayName: `${list.length} Contact`, contacts: list }, ...opts }, { quoted });
