@@ -572,20 +572,11 @@ async function connectToWA() {
                     logConnection('READY', 'Bot connected to WhatsApp');
                     logDivider();
 
-                   let up = `*⚡ HUNTER XMD PRO CONNECTED*
+                  let up = `*🎯 HUNTER XMD PRO ACTIVE*
 
-├─ 🚀 *Status:* Online & Ready
-├─ 👑 *Owner:* ${ownerNumber[0].split('@')[0]}
-├─ 🔤 *Prefix:* \`${prefix}\`
-└─ ⏰ *Time:* ${new Date().toLocaleTimeString()}
+⏱️ ${new Date().toLocaleTimeString()} • Prefix: \`${prefix}\` • Obed Tech`;
 
-*_Powered by Obed Tech_*`;
-
-conn.sendMessage(conn.user.id, { 
-    image: { url: `https://files.catbox.moe/karm5n.jpg` }, 
-    caption: up 
-});
-
+conn.sendMessage(conn.user.id, { text: up });
             conn.ev.on('creds.update', saveCreds);
           
             // ==================== FIXED ANTIDELETE - IMMEDIATE DETECTION ====================
