@@ -572,23 +572,19 @@ async function connectToWA() {
                     logConnection('READY', 'Bot connected to WhatsApp');
                     logDivider();
 
-                    let up = `*✨ HELLOW HUNTER XMD  LEGENTS! ✨*
+                   let up = `*⚡ HUNTER XMD PRO CONNECTED*
 
-╭─〔 *HUNTER XMD PRO* 〕  
-├─▸ *SYMPLICITY. SPEED. POWERED . BY OBED TECH |*  
-╰─➤ *HERE THERE ARE NEW WHATSAPP SIDEKICK!*
+├─ 🚀 *Status:* Online & Ready
+├─ 👑 *Owner:* ${ownerNumber[0].split('@')[0]}
+├─ 🔤 *Prefix:* \`${prefix}\`
+└─ ⏰ *Time:* ${new Date().toLocaleTimeString()}
 
-♦️ THANK YOU FOR CHOOSING  HUNTER XMD PRO ♦️!
+*_Powered by Obed Tech_*`;
 
-╭──〔 🔗 QUICK LINKS 〕  
-├─ ⭐ *DONT FORGET TO GIVE AS STAR AND FORK:*  
-│   FORK THIS [HERE](https://github.com/Obedweb/Hunter-Xmd1)!  
-╰─🛠️ *Prefix:* \`${prefix}\`
-
-> _HUNTER XMD PRO • ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴏʙᴇᴅ ᴛᴇᴄʜ_`;
-                    conn.sendMessage(conn.user.id, { image: { url: `https://files.catbox.moe/karm5n.jpg` }, caption: up });
-                }
-            });
+conn.sendMessage(conn.user.id, { 
+    image: { url: `https://files.catbox.moe/karm5n.jpg` }, 
+    caption: up 
+});
 
             conn.ev.on('creds.update', saveCreds);
           
