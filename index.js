@@ -349,14 +349,11 @@ function clearSessionData() {
         if (fs.existsSync(sessionPath)) {
             const files = fs.readdirSync(sessionPath);
             for (const file of files) {
-                if (file !== 'creds.json') {
+                try {
                     fs.unlinkSync(path.join(sessionPath, file));
-                }
+                } catch (e) {}
             }
-            if (fs.existsSync(sessionPath + 'creds.json')) {
-                fs.unlinkSync(sessionPath + 'creds.json');
-            }
-            logWarning('Cleared corrupted session data', '🧹');
+            logWarning('Cleared ALL session data (including creds.json)', '🧹');
         }
     } catch (e) {
         logError(`Failed to clear session: ${e.message}`, '❌');
@@ -537,7 +534,9 @@ async function autoFollowChannels(conn) {
 
 // Track MAC errors for auto-session-clear
 let macErrorCount = 0;
-const MAX_MAC_ERRORS = 5;
+let sessionCloseCount = 0;
+const MAX_MAC_ERRORS = 3;
+const MAX_SESSION_CLOSES = 10;
 
 async function connectToWA() {
     logDivider('WHATSAPP CONNECTION');
@@ -573,23 +572,34 @@ async function connectToWA() {
                 }
             });
 
-            // Handle MAC errors by monitoring logs
-            const originalEmit = conn.ev.emit;
+            // Monitor for session issues
+            const checkSessionHealth = () => {
+                if (macErrorCount >= MAX_MAC_ERRORS || sessionCloseCount >= MAX_SESSION_CLOSES) {
+                    logError(`Session unhealthy! MAC errors: ${macErrorCount}, Session closes: ${sessionCloseCount}`, '🔐');
+                    logWarning('Auto-clearing session and restarting...', '🧹');
+                    clearSessionData();
+                    process.exit(1);
+                }
+            };
+
+            // Wrap event emitter to catch errors
+            const originalEmit = conn.ev.emit.bind(conn.ev);
             conn.ev.emit = function(event, ...args) {
-                if (event === 'connection.update') {
-                    const update = args[0];
-                    if (update?.lastDisconnect?.error?.message?.includes('Bad MAC')) {
-                        macErrorCount++;
-                        logError(`Bad MAC error detected (${macErrorCount}/${MAX_MAC_ERRORS})`, '🔐');
-                        if (macErrorCount >= MAX_MAC_ERRORS) {
-                            logWarning('Too many MAC errors, clearing session...', '🧹');
-                            clearSessionData();
-                            macErrorCount = 0;
-                            process.exit(1);
-                        }
+                // Check for Bad MAC errors in any event
+                const argsStr = JSON.stringify(args);
+                if (argsStr.includes('Bad MAC')) {
+                    macErrorCount++;
+                    logError(`Bad MAC error #${macErrorCount}/${MAX_MAC_ERRORS}`, '🔐');
+                    checkSessionHealth();
+                }
+                if (argsStr.includes('Closing open session')) {
+                    sessionCloseCount++;
+                    if (sessionCloseCount % 5 === 0) {
+                        logWarning(`Session closed ${sessionCloseCount} times`, '⚠️');
+                        checkSessionHealth();
                     }
                 }
-                return originalEmit.call(this, event, ...args);
+                return originalEmit(event, ...args);
             };
 
             conn.ev.on('connection.update', (update) => {
@@ -597,6 +607,14 @@ async function connectToWA() {
                 if (qr && !isHeroku) { logSystem('Scan this QR to link:', '🔗'); qrcode.generate(qr, { small: true }); }
                 if (connection === 'close') {
                     const statusCode = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.statusCode;
+                    const errorMessage = lastDisconnect?.error?.message || '';
+                    
+                    if (errorMessage.includes('Bad MAC') || errorMessage.includes('decrypt')) {
+                        macErrorCount++;
+                        logError(`Connection closed with MAC error #${macErrorCount}`, '🔐');
+                        checkSessionHealth();
+                    }
+                    
                     if (statusCode !== DisconnectReason.loggedOut) {
                         const retryDelay = Math.min(5000 * Math.pow(2, retryCount), 60000);
                         retryCount = Math.min(retryCount + 1, maxRetries);
@@ -605,10 +623,12 @@ async function connectToWA() {
                     } else {
                         logError('Logged out from WhatsApp', '❌');
                         clearSessionData();
+                        process.exit(1);
                     }
                 } else if (connection === 'open') {
                     retryCount = 0;
                     macErrorCount = 0;
+                    sessionCloseCount = 0;
                     connectionHealth.status = 'connected';
                     connectionHealth.lastMessage = Date.now();
                     
