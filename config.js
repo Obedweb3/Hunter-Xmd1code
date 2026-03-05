@@ -22,6 +22,9 @@ function validateNumber(num, defaultNum) {
 }
 
 // Utility: Validate URL format
+/**
+ * Validates a URL and returns a default URL if the input is invalid.
+ */
 function validateUrl(url, defaultUrl) {
     if (!url) return defaultUrl;
     const urlRegex = /^https?:\/\/.+/;
@@ -187,8 +190,15 @@ const config = {
 // ================= VALIDATION =================
 
 /**
- * Validates critical configuration settings
- * Throws error if critical configs are missing
+ * Validates critical configuration settings.
+ *
+ * This function checks for the presence and validity of essential configuration parameters such as SESSION_ID and OWNER_NUMBER.
+ * It also generates warnings for potential issues based on the current configuration state. If critical errors are found,
+ * it logs them and throws an error in production environments, ensuring that the application does not proceed with invalid settings.
+ *
+ * @param {Object} config - The configuration object containing settings to validate.
+ * @returns {boolean} True if all critical configurations are valid; otherwise, false.
+ * @throws Error If critical configuration settings are missing in a production environment.
  */
 function validateConfig() {
     const errors = [];
