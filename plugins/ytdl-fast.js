@@ -23,6 +23,8 @@ cmd({
     try {
         if (!q) return reply("❌ Please provide a song name!\n\n*Example:*\n.play Alan Walker Faded");
 
+        // Send initial searching status
+        const statusMsg = await reply(`🔍 Searching: *${q}*`);
         await conn.sendMessage(from, { react: { text: "⏳", key: mek.key } });
 
         // Search for the video
@@ -41,6 +43,12 @@ cmd({
             thumbnail: video.thumbnail,
             author: video.author.name
         };
+
+        // Update status to downloading
+        await conn.sendMessage(from, {
+            text: `⬇️ Downloading: *${videoInfo.title}*`,
+            edit: statusMsg.key
+        });
 
         let mediaBuffer = null;
         let downloadMethod = '';
@@ -93,10 +101,13 @@ cmd({
         }
 
         if (!mediaBuffer) {
-            return reply(`❌ *Download Failed*\n\n🎵 *Title:* ${videoInfo.title}\n👤 *Channel:* ${videoInfo.author}\n\n🔗 *Watch on YouTube:*\n${videoInfo.url}\n\n💡 Try again later or use .video command`);
+            // Delete status message on failure
+            await conn.sendMessage(from, { delete: statusMsg.key });
+            return reply(`❌ *Download Failed*\n\n🎵 *Title:* ${videoInfo.title}\n👤 *Channel:* ${videoInfo.author}\n\n🔗 *Watch on YouTube:*\n${videoInfo.url}\n\n💡 Try again later`);
         }
 
-        const fileSize = (mediaBuffer.length / (1024 * 1024)).toFixed(2);
+        // Delete status message before sending audio
+        await conn.sendMessage(from, { delete: statusMsg.key });
 
         // Send audio directly with thumbnail
         await conn.sendMessage(from, {
@@ -137,6 +148,8 @@ cmd({
     try {
         if (!q) return reply("❌ Provide a video name!\n\n*Example:*\n.video Alan Walker Faded");
 
+        // Send initial searching status
+        const statusMsg = await reply(`🔍 Searching: *${q}*`);
         await conn.sendMessage(from, { react: { text: "⏳", key: mek.key } });
 
         const search = await ytSearch(q);
@@ -151,6 +164,12 @@ cmd({
             thumbnail: video.thumbnail,
             author: video.author.name
         };
+
+        // Update status to downloading
+        await conn.sendMessage(from, {
+            text: `⬇️ Downloading: *${videoInfo.title}*`,
+            edit: statusMsg.key
+        });
 
         let mediaBuffer = null;
 
@@ -200,8 +219,13 @@ cmd({
         }
 
         if (!mediaBuffer) {
+            // Delete status message on failure
+            await conn.sendMessage(from, { delete: statusMsg.key });
             return reply(`❌ *Download Failed*\n\n🎬 *Title:* ${videoInfo.title}\n👤 *Channel:* ${videoInfo.author}\n\n🔗 *Watch on YouTube:*\n${videoInfo.url}`);
         }
+
+        // Delete status message before sending video
+        await conn.sendMessage(from, { delete: statusMsg.key });
 
         // Send video directly
         await conn.sendMessage(from, {
