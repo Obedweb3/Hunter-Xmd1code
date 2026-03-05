@@ -1,6 +1,9 @@
 const fs = require('fs');
 if (fs.existsSync('config.env')) require('dotenv').config({ path: './config.env' });
 
+/**
+ * Converts a string to a boolean based on a comparison with a fault value.
+ */
 function convertToBool(text, fault = 'true') {
     return text === fault ? true : false;
 }
