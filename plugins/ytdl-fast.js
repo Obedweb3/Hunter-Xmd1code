@@ -84,6 +84,16 @@ class APIManager {
         ];
     }
 
+    /**
+     * Check the health status of a given API.
+     *
+     * This function first checks if the health status is cached and still valid based on the timestamp.
+     * If not cached or expired, it attempts to send a HEAD request to the appropriate endpoint based on the API type.
+     * The result is cached for future checks, indicating whether the API is healthy or not.
+     *
+     * @param api - An object representing the API to check, containing its name, type, and endpoints.
+     * @returns A promise that resolves to a boolean indicating the health status of the API.
+     */
     async checkHealth(api) {
         const now = Date.now();
         const cached = apiHealthCache.get(api.name);
@@ -108,6 +118,15 @@ class APIManager {
         }
     }
 
+    /**
+     * Retrieves a list of healthy APIs based on the specified type.
+     *
+     * This function filters the available APIs to include only those that support the specified type,
+     * either audio or video. It then checks the health of each API asynchronously and returns a sorted
+     * list of healthy APIs based on their priority. The default type is 'audio'.
+     *
+     * @param {string} [type='audio'] - The type of API to filter by, either 'audio' or 'video'.
+     */
     async getWorkingApis(type = 'audio') {
         const checks = await Promise.all(
             this.apis
@@ -124,6 +143,16 @@ class APIManager {
 const apiManager = new APIManager();
 
 // Utility: Format numbers
+/**
+ * Formats a number into a more readable string representation.
+ *
+ * The function checks if the input number is falsy, returning '0' if so.
+ * It then formats numbers in millions with a 'M' suffix and one decimal place,
+ * or in thousands with a 'K' suffix, also with one decimal place.
+ * If the number is less than 1000, it simply converts it to a string.
+ *
+ * @param {number} num - The number to format.
+ */
 function formatNumber(num) {
     if (!num) return '0';
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -137,11 +166,28 @@ function generateHash(url) {
 }
 
 // Utility: Clean filename
+/**
+ * Cleans and formats a filename by removing invalid characters and replacing spaces with underscores.
+ */
 function cleanFilename(title) {
     return title.replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_').substring(0, 50);
 }
 
 // Smart Download with retry logic and caching
+/**
+ * Downloads media from a given URL, utilizing caching and multiple API sources.
+ *
+ * The function first checks if the media is available in the cache and returns it if valid.
+ * If not, it attempts to download the media using various APIs based on the media type (video or audio).
+ * If all API attempts fail, it falls back to using ytdl-core for audio or video downloads, respectively.
+ * The function also implements retry logic for transient failures.
+ *
+ * @param url - The URL of the media to download.
+ * @param isVideo - A boolean indicating whether the media is a video (default is false).
+ * @param retryCount - The current retry count (default is 0).
+ * @returns An object containing the downloaded media buffer, the method used for download, and a cached flag.
+ * @throws Error If all download methods fail after the maximum retries.
+ */
 async function smartDownload(url, isVideo = false, retryCount = 0) {
     const cacheKey = generateHash(url + (isVideo ? '_video' : '_audio'));
     const cachePath = path.join(CONFIG.cacheDir, cacheKey + (isVideo ? '.mp4' : '.opus'));
