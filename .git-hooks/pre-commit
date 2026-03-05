@@ -1,0 +1,15 @@
+#!/bin/bash
+# Pre-commit hook to check for secrets
+
+if git diff --cached --name-only | grep -E '\.(flf|pfx|p12|env)$'; then
+    echo "❌ ERROR: Attempting to commit sensitive files!"
+    echo "Remove these files from staging:"
+    git diff --cached --name-only | grep -E '\.(flf|pfx|p12|env)$'
+    exit 1
+fi
+
+if git diff --cached -G'(password|secret|key|token)' --name-only | grep -E '\.(json|al)$'; then
+    echo "⚠️  WARNING: Possible secrets in code. Review manually."
+fi
+
+exit 0
