@@ -1,9 +1,0 @@
-# Treat AL files as text
-*.al text eol=crlf
-
-# Treat app files as binary
-*.app binary
-
-# Don't diff generated files
-*.g.xlf binary
-*.flf binary
