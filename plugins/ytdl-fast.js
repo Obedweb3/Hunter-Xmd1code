@@ -76,6 +76,18 @@ class APIManager {
         ];
     }
 
+    /**
+     * Checks the health status of the specified API.
+     *
+     * This function first checks if the health status of the API is cached and still valid based on the defined TTL.
+     * If the cached status is not available or expired, it attempts to send a HEAD request to the API's endpoint
+     * to determine its health. The result is then cached for future reference.
+     *
+     * @param {Object} api - The API object containing the name and endpoint information.
+     * @param {string} api.name - The name of the API.
+     * @param {string} [api.endpoint] - The primary endpoint of the API.
+     * @param {string} [api.audioEndpoint] - An alternative audio endpoint of the API.
+     */
     async checkHealth(api) {
         const now = Date.now();
         const cached = apiHealthCache.get(api.name);
@@ -109,6 +121,15 @@ class APIManager {
 
 const apiManager = new APIManager();
 
+/**
+ * Formats a number into a more readable string representation.
+ *
+ * The function checks if the input number is falsy, returning '0' if so.
+ * It then formats numbers in millions with an 'M' suffix and in thousands with a 'K' suffix,
+ * rounding to one decimal place. If the number is less than 1000, it returns the number as a string.
+ *
+ * @param {number} num - The number to format.
+ */
 function formatNumber(num) {
     if (!num) return '0';
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -116,6 +137,9 @@ function formatNumber(num) {
     return num.toString();
 }
 
+/**
+ * Generates an MD5 hash for the given URL.
+ */
 function generateHash(url) {
     return crypto.createHash('md5').update(url).digest('hex');
 }
@@ -125,6 +149,17 @@ function cleanFilename(title) {
 }
 
 // Download as Document (MP3/MP4 files)
+/**
+ * Downloads a document (audio or video) from a given URL, utilizing various APIs and caching mechanisms.
+ *
+ * The function first checks if a cached version of the file exists and is valid. If not, it attempts to download the file using available APIs, handling different types of responses based on the API used. If all API attempts fail, it falls back to using ytdl-core for downloading. The function also implements retry logic in case of failures, allowing for a specified number of retries before throwing an error.
+ *
+ * @param url - The URL of the document to download.
+ * @param isVideo - A boolean indicating whether the document is a video (default is false).
+ * @param retryCount - The current retry attempt count (default is 0).
+ * @returns An object containing the file path, method used, whether it was cached, file name, and file size.
+ * @throws Error If all download methods fail after the maximum number of retries.
+ */
 async function downloadAsDocument(url, isVideo = false, retryCount = 0) {
     const ext = isVideo ? 'mp4' : 'mp3';
     const cacheKey = generateHash(url + (isVideo ? '_video' : '_audio'));
