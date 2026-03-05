@@ -364,6 +364,16 @@ cmd({
 });
 
 // Helper function to format views
+/**
+ * Formats a number into a more readable string representation.
+ *
+ * The function checks if the input number is falsy, returning '0' if so.
+ * It then formats numbers in the millions with an 'M' suffix and one decimal place,
+ * and numbers in the thousands with a 'K' suffix, also with one decimal place.
+ * For all other numbers, it simply converts the number to a string.
+ *
+ * @param {number} num - The number to format.
+ */
 function formatNumber(num) {
     if (!num) return '0';
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
