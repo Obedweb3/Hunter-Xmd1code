@@ -663,11 +663,11 @@ async function connectToWA() {
 │ ⏰ ${new Date().toLocaleTimeString()}
 │ 🔧 Prefix: [ ${prefix} ]
 ├───────────────
-│ ⚡ Powered by Obed Tech
+│ ⚡ ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴏʙᴇᴅ ᴛᴇᴄʜ
 ╰───────────────`;
 
 conn.sendMessage(conn.user.id, { 
-    image: { url: `https://files.catbox.moe/karm5n.jpg ` }, 
+    image: { url: `https://files.catbox.moe/xka13x.jpg ` }, 
     caption: up 
 });
                 }
