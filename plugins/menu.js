@@ -57,7 +57,7 @@ cmd({
         const sentMsg = await conn.sendMessage(
             from,
             {
-                image: { url: config.MENU_IMAGE_URL || 'https://res.cloudinary.com/dgy2dutjs/image/upload/v1751659999/url.crissvevo.co.tz/%E1%B4%8F%CA%99%E1%B4%87%E1%B4%85%E1%B4%9B%E1%B4%87%E1%B4%84%CA%9C1_pl1cki.jpg' },
+                image: { url: config.MENU_IMAGE_URL || 'https://files.catbox.moe/xka13x.jpg' },
                 caption: menuCaption,
                 contextInfo: contextInfo
             },
@@ -66,7 +66,7 @@ cmd({
 
         // Send menu audio only once
         await conn.sendMessage(from, {
-            audio: { url: 'https://github.com/criss-vevo/CRISS-DATA/raw/refs/heads/main/autovoice/menunew.m4a' },
+            audio: { url: 'https://files.catbox.moe/62lnxc.mp3' },
             mimetype: 'audio/mp4',
             ptt: true,       
         }, { quoted: mek });
@@ -375,7 +375,7 @@ cmd({
                     await conn.sendMessage(
                         senderID,
                         {
-                            image: { url: config.MENU_IMAGE_URL || 'https://res.cloudinary.com/dgy2dutjs/image/upload/v1751659999/url.crissvevo.co.tz/%E1%B4%8F%CA%99%E1%B4%87%E1%B4%85%E1%B4%9B%E1%B4%87%E1%B4%84%CA%9C1_pl1cki.jpg' },
+                            image: { url: config.MENU_IMAGE_URL || 'https://files.catbox.moe/xka13x.jpg' },
                             caption: selectedMenu.content,
                             contextInfo: contextInfo
                         },
