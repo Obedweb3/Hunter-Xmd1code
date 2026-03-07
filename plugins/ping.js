@@ -1,39 +1,73 @@
 const config = require('../config');
 const { cmd, commands } = require('../command');
+const os = require('os');
 
+// ============================================================
+//  🏹 PING COMMAND — Hunter XMD  (improved)
+// ============================================================
 cmd({
-    pattern: "ping2",
-    alias: ["speed","pong"],use: '.ping',
-    desc: "Check bot's response time.",
+    pattern: "ping",
+    alias: ["speed", "pong", "latency"],
+    use: '.ping',
+    desc: "Check bot's response speed & system stats.",
     category: "main",
-    react: "⚡",
+    react: "🏹",
     filename: __filename
 },
-async (conn, mek, m, { from, quoted, sender, reply, }) => {
+async (conn, mek, m, {
+    from, sender, pushname, reply
+}) => {
     try {
-        const start = new Date().getTime();
+        // ── Timing ──────────────────────────────────────────
+        const start = Date.now();
 
-        const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
-        const textEmojis = ['💎', '🏆', '⚡️', '🚀', '🎶', '🌠', '🌀', '🔱', '🛡️', '✨'];
+        // ── System stats ────────────────────────────────────
+        const uptimeSec  = Math.floor(process.uptime());
+        const uptimeStr  = formatUptime(uptimeSec);
+        const memUsed    = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(1);
+        const memTotal   = (os.totalmem() / 1024 / 1024).toFixed(1);
+        const cpuLoad    = (os.loadavg()[0]).toFixed(2);
+        const platform   = os.platform();
+        const nodeVer    = process.version;
 
-        const reactionEmoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
-        let textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
+        // ── Cosmetics ────────────────────────────────────────
+        const EMOJIS = ['⚡','🔥','🚀','💥','🎯','🌟','🛸','💫','🎆','🏆'];
+        const spark  = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
 
-        // Ensure reaction and text emojis are different
-        while (textEmoji === reactionEmoji) {
-            textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
-        }
-
-        // Send reaction using conn.sendMessage()
+        // ── Send reaction ────────────────────────────────────
         await conn.sendMessage(from, {
-            react: { text: textEmoji, key: mek.key }
+            react: { text: spark, key: mek.key }
         });
 
-        const end = new Date().getTime();
-        const responseTime = (end - start) / 1000;
+        // ── Calculate latency ────────────────────────────────
+        const ping = Date.now() - start;
 
-        const text = `> *ʜᴜɴᴛᴇʀ xᴍᴅ ꜱᴘᴇᴇᴅ: ${responseTime.toFixed(2)}ms ${reactionEmoji}*`;
+        // ── Speed tier label ─────────────────────────────────
+        const { tier, bar } = getSpeedTier(ping);
 
+        // ── Build message ────────────────────────────────────
+        const name = pushname || "User";
+        const text =
+`╭━━━━━━━━━━━━━━━━━━━━━╮
+┃  🏹 *ʜᴜɴᴛᴇʀ xᴍᴅ — ᴘɪɴɢ* ${spark}
+╰━━━━━━━━━━━━━━━━━━━━━╯
+
+👤 *User :* ${name}
+${bar}
+⚡ *Latency :* \`${ping} ms\`
+🏅 *Speed Tier :* ${tier}
+
+╭── 🖥️ *ꜱʏꜱᴛᴇᴍ ꜱᴛᴀᴛꜱ* ──╮
+│ 🕒 Uptime  : ${uptimeStr}
+│ 🧠 Memory  : ${memUsed} / ${memTotal} MB
+│ 📊 CPU     : ${cpuLoad} (load avg)
+│ 🐧 OS      : ${platform}
+│ 🟢 Node    : ${nodeVer}
+╰──────────────────────╯
+
+> *Powered by* 🏹 *ʜᴜɴᴛᴇʀ xᴍᴅ*`;
+
+        // ── Send reply ───────────────────────────────────────
         await conn.sendMessage(from, {
             text,
             contextInfo: {
@@ -49,29 +83,50 @@ async (conn, mek, m, { from, quoted, sender, reply, }) => {
         }, { quoted: mek });
 
     } catch (e) {
-        console.error("Error in ping command:", e);
-        reply(`An error occurred: ${e.message}`);
+        console.error("Ping command error:", e);
+        reply(`❌ Error: ${e.message}`);
     }
 });
 
-// ping2 
+// ── Helpers ──────────────────────────────────────────────────
 
-cmd({
-    pattern: "ping",
-    desc: "Check bot's response time.",
-    category: "main",
-    react: "🍂",
-    filename: __filename
-},
-async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
-    try {
-        const startTime = Date.now()
-        const message = await conn.sendMessage(from, { text: '*PINGING...*' })
-        const endTime = Date.now()
-        const ping = endTime - startTime
-        await conn.sendMessage(from, { text: `*🔥 ʜᴜɴᴛᴇʀ xᴍᴅ ꜱᴘᴇᴇᴅ : ${ping}ms*` }, { quoted: message })
-    } catch (e) {
-        console.log(e)
-        reply(`${e}`)
+/**
+ * Returns a speed tier label + a visual progress bar based on latency.
+ * @param {number} ms
+ */
+function getSpeedTier(ms) {
+    const bars = 10;
+    let filled, tier;
+
+    if (ms <= 50) {
+        filled = 10; tier = "🟢 *Ultra Fast* 🚀";
+    } else if (ms <= 150) {
+        filled = 8;  tier = "🔵 *Fast* ⚡";
+    } else if (ms <= 300) {
+        filled = 6;  tier = "🟡 *Normal* 🙂";
+    } else if (ms <= 600) {
+        filled = 4;  tier = "🟠 *Slow* 😐";
+    } else {
+        filled = 2;  tier = "🔴 *Very Slow* 😴";
     }
-})
+
+    const bar = "▰".repeat(filled) + "▱".repeat(bars - filled);
+    return { tier, bar: `📶 *Speed :* \`${bar}\`` };
+}
+
+/**
+ * Converts seconds into a human-readable uptime string.
+ * @param {number} seconds
+ */
+function formatUptime(seconds) {
+    const d = Math.floor(seconds / 86400);
+    const h = Math.floor((seconds % 86400) / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    const parts = [];
+    if (d) parts.push(`${d}d`);
+    if (h) parts.push(`${h}h`);
+    if (m) parts.push(`${m}m`);
+    parts.push(`${s}s`);
+    return parts.join(' ');
+}
