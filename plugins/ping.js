@@ -91,8 +91,13 @@ ${bar}
 // ── Helpers ──────────────────────────────────────────────────
 
 /**
- * Returns a speed tier label + a visual progress bar based on latency.
- * @param {number} ms
+ * Determines the speed tier label and visual progress bar based on latency.
+ * The function evaluates the provided latency in milliseconds and assigns a speed tier
+ * along with a corresponding visual representation using filled and unfilled bars.
+ * It categorizes the latency into five tiers: Ultra Fast, Fast, Normal, Slow, and Very Slow,
+ * and constructs a progress bar to visually indicate the speed.
+ *
+ * @param {number} ms - The latency in milliseconds to evaluate the speed tier.
  */
 function getSpeedTier(ms) {
     const bars = 10;
