@@ -6,7 +6,7 @@ cmd({
     alias: ["speed", "pong"],
     desc: "Check bot response speed.",
     category: "main",
-    react: "🚀",
+    react: "🏹",
     filename: __filename
 },
 async (conn, mek, m, { from, sender, pushname, reply }) => {
@@ -27,7 +27,7 @@ async (conn, mek, m, { from, sender, pushname, reply }) => {
 🕒 Uptime  : *${Math.floor(uptime/3600)}h ${Math.floor((uptime%3600)/60)}m*
 🧠 Memory  : *${mem} MB*
 
-> 🏹 *ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴏʙᴇᴅ ᴛᴇᴄʜ*`;
+> 🚀 *ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴏʙᴇᴅ ᴛᴇᴄʜ*`;
 
         await conn.sendMessage(from, {
             text,
