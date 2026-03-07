@@ -2,9 +2,7 @@ const axios = require('axios');
 const config = require('../config');
 const { cmd, commands } = require('../command');
 const util = require("util");
-const { getAnti, setAnti, initializeAntiDeleteSettings } = require('../data/antidel');
-
-initializeAntiDeleteSettings();
+const { getAnti, setAnti } = require('../data/antidel');
 
 cmd({
     pattern: "antidelete",
@@ -81,7 +79,7 @@ cmd({
 },
 async (conn, mek, m, { from, reply }) => {
     try {
-        const quotedMessage = m.msg.contextInfo.quotedMessage; // Get quoted message
+        const quotedMessage = m.msg.contextInfo.quotedMessage;
 
         if (quotedMessage && quotedMessage.viewOnceMessageV2) {
             const quot = quotedMessage.viewOnceMessageV2;
@@ -101,7 +99,6 @@ async (conn, mek, m, { from, reply }) => {
             }
         }
 
-        // If there is no quoted message or it's not a ViewOnce message
         if (!m.quoted) return reply("Please reply to a ViewOnce message.");
         if (m.quoted.mtype === "viewOnceMessage") {
             if (m.quoted.message.imageMessage) {
@@ -126,4 +123,4 @@ async (conn, mek, m, { from, reply }) => {
     }
 });
 
-// if you want use the codes give me credit on your channel and repo in this file and my all files 
+// if you want use the codes give me credit on your channel and repo in this file and my all files
