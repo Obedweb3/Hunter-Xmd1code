@@ -6,7 +6,7 @@ cmd({
     alias: ["speed", "pong"],
     desc: "Check bot response speed.",
     category: "main",
-    react: "🏹",
+    react: "🚀",
     filename: __filename
 },
 async (conn, mek, m, { from, sender, pushname, reply }) => {
@@ -21,13 +21,13 @@ async (conn, mek, m, { from, sender, pushname, reply }) => {
         const tier = ping < 100 ? "🟢 Fast" : ping < 300 ? "🟡 Normal" : "🔴 Slow";
 
         const text =
-`⚡ *ʜᴜɴᴛᴇʀ xᴍᴅ ᴘɪɴɢ*
+`⚡ *ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ ᴘɪɴɢ*
 
 🏓 Latency : *${ping}ms* ${tier}
 🕒 Uptime  : *${Math.floor(uptime/3600)}h ${Math.floor((uptime%3600)/60)}m*
 🧠 Memory  : *${mem} MB*
 
-> 🏹 *Powered by Hunter XMD*`;
+> 🏹 *ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴏʙᴇᴅ ᴛᴇᴄʜ*`;
 
         await conn.sendMessage(from, {
             text,
@@ -37,7 +37,7 @@ async (conn, mek, m, { from, sender, pushname, reply }) => {
                 isForwarded: true,
                 forwardedNewsletterMessageInfo: {
                     newsletterJid: '120363416335506023@newsletter',
-                    newsletterName: "Obedtech",
+                    newsletterName: "ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ",
                     serverMessageId: 143
                 }
             }
