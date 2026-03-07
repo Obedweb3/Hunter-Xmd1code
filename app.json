@@ -1,7 +1,7 @@
 {
   "name": "𝐇𝐔𝐍𝐓𝐄𝐑 𝐗𝐌𝐃 pro",
   "description": "Javascript WhatsApp bot made by ᴏʙᴇᴅᴛᴇᴄʜ",
-  "logo": "https://files.catbox.moe/k05k5r.jpg",
+  "logo": "https://files.catbox.moe/xka13x.jpg",
   "keywords": ["HUNTER-XMD pro"],
   "success_url": "/",
 
@@ -132,7 +132,7 @@
     "MENU_IMAGE_URL": {
       "description": "add url for mention reply and menu if want.",
       "required": false,
-      "value": "https://files.catbox.moe/11w56r.jpg"
+      "value": "https://files.catbox.moe/xka13x.jpg"
     },
     
      "DESCRIPTION": {
