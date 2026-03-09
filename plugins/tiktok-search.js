@@ -2,14 +2,16 @@
    HUNTER XMD PRO - TIKTOK SEARCH
    COMMAND : .tiktoksearch <query>
    API     : https://www.tikwm.com/api/feed/search
-             (verified working, no key needed)
-   FIX     : Base64 buffer support
+             METHOD: POST (confirmed working)
+   FIELDS  : hdplay > play > wmplay (no watermark priority)
+   LIMIT   : 5,000 free requests/day per IP
    ============================================ */
 
 const axios = require('axios');
 const { cmd } = require('../command');
 
 const BOT_NAME = '𝗛𝗨𝗡𝗧𝗘𝗥 𝗫𝗠𝗗 𝗣𝗥𝗢';
+const TIKWM_API = 'https://www.tikwm.com/api/feed/search';
 
 // ─── Base64 / URL resolver ─────────────────────────────────────
 function resolveMediaSource(link) {
@@ -26,36 +28,37 @@ function resolveMediaSource(link) {
     }
 }
 
-// ─── Fetch TikTok search from tikwm.com ───────────────────────
-// Endpoint: GET https://www.tikwm.com/api/feed/search
-// Params  : keywords, count, cursor, hd
-// Response: { code: 0, data: { videos: [...] } }
+// ─── Search via tikwm POST ─────────────────────────────────────
+// Confirmed response structure from tikwm:
+// { code: 0, msg: "success", data: { videos: [ { title, cover, play, hdplay, wmplay, duration, author: { unique_id, nickname } } ] } }
 async function searchTikTok(query, count = 10) {
-    const url = `https://www.tikwm.com/api/feed/search`;
-    const res = await axios.get(url, {
-        params: {
+    const res = await axios.post(TIKWM_API,
+        new URLSearchParams({
             keywords: query,
-            count,
-            cursor: 0,
-            hd: 1
-        },
-        timeout: 25000,
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10'
+            count:    String(count),
+            cursor:   '0',
+            hd:       '1'
+        }),
+        {
+            timeout: 25000,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Agent':   'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10'
+            }
         }
-    });
+    );
 
     const d = res.data;
+    console.log('[TIKTOKSEARCH] tikwm code:', d?.code, '| msg:', d?.msg);
 
-    // tikwm returns code 0 on success
     if (!d || d.code !== 0) {
-        throw new Error(`tikwm error: ${d?.msg || 'unknown'}`);
+        throw new Error(`tikwm: ${d?.msg || 'bad response code ' + d?.code}`);
     }
 
-    // Videos are inside data.videos or data directly
+    // confirmed path: data.videos[]
     const videos = d?.data?.videos || d?.data || [];
     if (!Array.isArray(videos) || videos.length === 0) {
-        throw new Error('No videos in response');
+        throw new Error('tikwm returned 0 videos');
     }
 
     return videos.map(v => ({
@@ -63,24 +66,22 @@ async function searchTikTok(query, count = 10) {
         author:   v.author?.unique_id || v.author?.nickname || v.author || 'Unknown',
         duration: v.duration ? `${v.duration}s` : null,
         cover:    v.cover || v.origin_cover || null,
-        // prefer HD no-watermark → standard no-watermark → watermark
-        videoUrl: v.hdplay || v.play || v.wmplay || null,
-        audioUrl: v.music   || v.music_info?.play || null,
+        videoUrl: v.hdplay || v.play || v.wmplay || null,  // HD no-watermark first
         link:     v.id
                     ? `https://www.tiktok.com/@${v.author?.unique_id || 'user'}/video/${v.id}`
                     : null
     }));
 }
 
-// ─── Smart captions ───────────────────────────────────────────
+// ─── Smart rotating captions ──────────────────────────────────
 const taglines = [
-    'Straight from TikTok to your chat 🚀',
-    'Your video — no watermark, no wait ⚡',
+    'Straight from TikTok — no watermark 🚀',
+    'Your video, delivered in HD ⚡',
     'Fresh off the FYP — enjoy! 🌟',
-    'Caught in HD, delivered just for you 📸',
-    'Viral content, delivered instantly 🔥',
-    'Zero watermark. All vibes 💎',
-    'Downloaded at lightning speed ⚡'
+    'Caught in 4K, sent just for you 📸',
+    'Viral content, zero watermark 🔥',
+    'Clean download. All vibes 💎',
+    'Lightning speed delivery ⚡'
 ];
 const emojis = ['🎯', '🔥', '💥', '⚡', '🌟', '🎬', '🎭'];
 
@@ -99,7 +100,7 @@ ${v.link ? `🔗  ${v.link}` : ''}
 cmd({
     pattern: "tiktoksearch",
     alias: ["tiktoks", "tiks", "ttsearch"],
-    desc: "Search TikTok videos by keyword (tikwm API)",
+    desc: "Search TikTok videos by keyword",
     react: '🔍',
     category: 'downloader',
     filename: __filename
@@ -123,59 +124,49 @@ async (conn, mek, m, { from, args, reply }) => {
 
         const query = args.join(' ');
 
-        // ── 2. React + searching notice ────────────────────────
+        // ── 2. React + notify ──────────────────────────────────
         await conn.sendMessage(from, { react: { text: '🔍', key: mek.key } });
         await reply(`🔎 *Searching TikTok...*
 ━━━━━━━━━━━━━━━━━━━━
 🎯  _"${query}"_
-⏳  Fetching results...
+⏳  _Fetching results, hold tight..._
 ━━━━━━━━━━━━━━━━━━━━
 > ${BOT_NAME}`);
 
-        // ── 3. Search ──────────────────────────────────────────
+        // ── 3. Call tikwm ──────────────────────────────────────
         let videos;
         try {
             videos = await searchTikTok(query, 10);
-            console.log(`[TIKTOKSEARCH] tikwm returned ${videos.length} results`);
+            console.log(`[TIKTOKSEARCH] Got ${videos.length} results for "${query}"`);
         } catch (searchErr) {
-            console.error('[TIKTOKSEARCH] Search failed:', searchErr.message);
+            console.error('[TIKTOKSEARCH] Search error:', searchErr.message);
             await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
             return reply(`❌ *Search Failed*
 ━━━━━━━━━━━━━━━━━━━━
-Could not reach TikTok search API.
+_${searchErr.message.substring(0, 100)}_
+
 Please try again in a moment.
-
-_Error: ${searchErr.message.substring(0, 80)}_
 ━━━━━━━━━━━━━━━━━━━━
 > ${BOT_NAME}`);
         }
 
-        if (!videos || videos.length === 0) {
-            await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
-            return reply(`❌ *No Results*
-━━━━━━━━━━━━━━━━━━━━
-Nothing found for _"${query}"_
-Try different or broader keywords.
-━━━━━━━━━━━━━━━━━━━━
-> ${BOT_NAME}`);
-        }
-
-        // ── 4. Pick 5 random results ───────────────────────────
+        // ── 4. Filter + pick 5 ─────────────────────────────────
         const results = videos
-            .filter(v => v.videoUrl)           // only keep videos with a URL
+            .filter(v => v.videoUrl)
             .sort(() => Math.random() - 0.5)
             .slice(0, 5);
 
         if (results.length === 0) {
             await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
-            return reply(`❌ *No Playable Videos*
+            return reply(`❌ *No Playable Videos Found*
 ━━━━━━━━━━━━━━━━━━━━
-Results were found but had no download URLs.
+Results found but no download URLs available.
+Try a different keyword.
 ━━━━━━━━━━━━━━━━━━━━
 > ${BOT_NAME}`);
         }
 
-        await reply(`✅ *Sending ${results.length} video${results.length > 1 ? 's' : ''}* for _"${query}"_...\n> ${BOT_NAME}`);
+        await reply(`✅ *Sending ${results.length} video${results.length > 1 ? 's' : ''}* for _"${query}"_...`);
 
         // ── 5. Send each video ─────────────────────────────────
         let sent = 0;
@@ -185,39 +176,36 @@ Results were found but had no download URLs.
             const v = results[i];
             const mediaSource = resolveMediaSource(v.videoUrl);
 
-            if (!mediaSource) {
-                failed++;
-                continue;
-            }
+            if (!mediaSource) { failed++; continue; }
 
             try {
                 const payload = {
                     mimetype: 'video/mp4',
-                    caption: smartCaption(v, i)
+                    caption:  smartCaption(v, i)
                 };
-                payload.video = mediaSource; // Buffer or { url: '...' }
+                payload.video = mediaSource;
 
                 await conn.sendMessage(from, payload, { quoted: mek });
                 sent++;
 
-                // Pause between sends to avoid rate limiting
+                // Pause between sends
                 if (i < results.length - 1) {
                     await new Promise(r => setTimeout(r, 1500));
                 }
 
             } catch (sendErr) {
                 failed++;
-                console.error(`[TIKTOKSEARCH] Send error for "${v.title}":`, sendErr.message);
+                console.error(`[TIKTOKSEARCH] Send failed for "${v.title}":`, sendErr.message);
             }
         }
 
         // ── 6. Final status ────────────────────────────────────
         if (sent === 0) {
             await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
-            return reply(`❌ *All Downloads Failed*
+            return reply(`❌ *Downloads Failed*
 ━━━━━━━━━━━━━━━━━━━━
-Videos were found but could not be sent.
-TikTok CDN URLs may have expired.
+Videos found but CDN URLs may have expired.
+Try again — TikTok URLs expire quickly.
 ━━━━━━━━━━━━━━━━━━━━
 > ${BOT_NAME}`);
         }
@@ -229,7 +217,7 @@ TikTok CDN URLs may have expired.
         }
 
     } catch (err) {
-        console.error('[TIKTOKSEARCH] Fatal error:', err.message);
+        console.error('[TIKTOKSEARCH] Fatal:', err.message);
         await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
         reply(`❌ *Unexpected Error*
 ━━━━━━━━━━━━━━━━━━━━
