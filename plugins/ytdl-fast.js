@@ -14,7 +14,7 @@ const axios = require('axios');
 const BASE_URL = 'https://noobs-api.top';
 
 // Bot Identity
-const BOT_NAME   = '𝗛𝗨𝗡𝗧𝗘𝗥 𝗫𝗠𝗗 𝗣𝗥𝗢';
+const BOT_NAME   = 'ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ';
 const BOT_FOOTER = '🎯 ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ — ᴍᴜꜱɪᴄ ᴍᴏᴅᴜʟᴇ';
 const OWNER_NAME = 'OBED TECH';
 const BOT_VERSION = '𝟯𝟬.𝟬.𝟬';
