@@ -9,7 +9,7 @@
 const axios = require('axios');
 const { cmd } = require('../command');
 
-const BOT_NAME = '𝗛𝗨𝗡𝗧𝗘𝗥 𝗫𝗠𝗗 𝗣𝗥𝗢';
+const BOT_NAME = 'ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ';
 
 // ─── Base64 / URL resolver ─────────────────────────────────────
 function resolveMediaSource(link) {
