@@ -3,14 +3,10 @@
    COMMAND  : .fb <facebook_url>
    ALIAS    : .facebook .fbdl
 
-   KEY FACTS from logs:
-   - cobalt.tools/api/json → 400 (alive, wrong body format)
-   - cobalt.tools/ → 405 (wrong method)
-   - All 404s = endpoint doesn't exist (not blocked)
-   - ENOTFOUND = blocked by Heroku DNS
-
-   STRATEGY: Fix Cobalt body + use tikwm (confirmed working)
-   + use occcoo.etacloud.org (seen in YOUR logs!)
+   CONFIRMED reachable from your Heroku dyno:
+   ✅ apiskeith.top  (in YOUR logs: /download/audio works)
+   ✅ www.tikwm.com  (used by tiktok plugins)
+   ✅ api.cobalt.tools (gets 400 = alive)
    ============================================ */
 
 const axios = require('axios');
@@ -27,49 +23,34 @@ function resolveMediaSource(link) {
     } catch (e) { return null; }
 }
 
-// ─── Method 1: occcoo.etacloud.org ────────────────────────────
-// THIS DOMAIN APPEARS IN YOUR OWN BOT LOGS at 14:31:47!
-// "fetch https://occcoo.etacloud.org/api/v1/download..."
-async function tryEtacloud(url) {
-    const res = await axios.post(
-        'https://occcoo.etacloud.org/api/v1/download',
-        { url },
-        {
-            timeout: 30000,
-            headers: {
-                'Content-Type': 'application/json',
-                'User-Agent': 'Mozilla/5.0'
-            }
-        }
+// ─── apiskeith.top — try every possible FB endpoint ──────────
+// Your bot uses: /download/audio  →  so try /download/video and /download/facebook
+async function tryApisKeith(url, endpoint) {
+    const res = await axios.get(
+        `https://apiskeith.top${endpoint}?url=${encodeURIComponent(url)}`,
+        { timeout: 25000, headers: { 'User-Agent': 'Mozilla/5.0' } }
     );
     const d = res.data;
-    console.log('[FB-DL] Etacloud response:', JSON.stringify(d).substring(0, 400));
-    // Try every possible field
-    const v = d?.url || d?.hd || d?.sd || d?.video || d?.data?.url
-            || d?.data?.hd || d?.result?.url || d?.result?.hd
-            || d?.links?.hd || d?.links?.sd
-            || (Array.isArray(d?.medias) ? (d.medias.find(x=>x.quality?.includes('HD')) || d.medias[0])?.url : null)
-            || (Array.isArray(d?.data) ? d.data[0]?.url : null);
+    console.log(`[FB-DL] ApisKeith ${endpoint}:`, JSON.stringify(d).substring(0, 400));
+    const v = d?.url || d?.hd || d?.sd || d?.video || d?.videoUrl
+            || d?.data?.url || d?.data?.hd || d?.data?.sd
+            || d?.result?.url || d?.result?.hd
+            || (Array.isArray(d?.links) ? d.links[0]?.url : null)
+            || (Array.isArray(d?.medias) ? (d.medias.find(x => (x.quality||'').includes('HD')) || d.medias[0])?.url : null);
     if (v) return v;
-    throw new Error('etacloud: no video URL. Full: ' + JSON.stringify(d).substring(0, 200));
+    throw new Error(`apiskeith ${endpoint}: no video URL`);
 }
 
-// ─── Method 2: Cobalt - fixed request format ──────────────────
-// Cobalt v10 API requires exact headers including Accept
+// ─── cobalt — correct v10 body ────────────────────────────────
 async function tryCobalt(url) {
-    // Try multiple cobalt instances (community-hosted)
     const instances = [
         'https://api.cobalt.tools',
         'https://cobalt.imput.net',
         'https://co.wuk.sh',
     ];
-    
     for (const base of instances) {
         try {
-            const res = await axios({
-                method: 'POST',
-                url: `${base}/`,
-                data: { url },
+            const res = await axios.post(`${base}/`, { url }, {
                 timeout: 20000,
                 headers: {
                     'Content-Type': 'application/json',
@@ -78,79 +59,39 @@ async function tryCobalt(url) {
                 }
             });
             const d = res.data;
-            console.log(`[FB-DL] Cobalt ${base} response:`, JSON.stringify(d).substring(0, 300));
-            if (d?.url && (d?.status === 'stream' || d?.status === 'redirect' || d?.status === 'tunnel')) {
-                return d.url;
-            }
+            console.log(`[FB-DL] Cobalt(${base}):`, JSON.stringify(d).substring(0, 300));
+            if (d?.url) return d.url;
             if (d?.status === 'picker' && d?.picker?.length) {
                 const v = d.picker.find(x => x.type === 'video') || d.picker[0];
                 if (v?.url) return v.url;
             }
-            if (d?.url) return d.url;
-        } catch (err) {
-            console.error(`[FB-DL] Cobalt ${base} FAILED:`, err.message);
+        } catch (e) {
+            console.error(`[FB-DL] Cobalt(${base}) err:`, e.message);
         }
     }
     throw new Error('All cobalt instances failed');
 }
 
-// ─── Method 3: tikwm /api/facebook (try again with right body) ─
-// Previous attempt used GET, now trying correct POST
+// ─── tikwm facebook endpoint ──────────────────────────────────
 async function tryTikwmFb(url) {
-    const res = await axios.post(
-        'https://www.tikwm.com/api/facebook',
+    const res = await axios.post('https://www.tikwm.com/api/facebook',
         new URLSearchParams({ url, hd: '1' }),
         {
             timeout: 25000,
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'User-Agent': 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 Version/4.0.4 Mobile/7B334b Safari/531.21.10774',
+                'User-Agent': 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X)',
                 'Referer': 'https://www.tikwm.com/'
             }
         }
     );
     const d = res.data;
-    console.log('[FB-DL] TikwmFB response:', JSON.stringify(d).substring(0, 300));
+    console.log('[FB-DL] TikwmFB:', JSON.stringify(d).substring(0, 300));
     if (d?.code === 0 && d?.data) {
         const v = d.data.hdplay || d.data.play || d.data.url || d.data.video;
         if (v) return v;
     }
-    throw new Error(`tikwm-fb: code=${d?.code}, msg=${d?.msg}`);
-}
-
-// ─── Method 4: apiskeith.top (seen in YOUR logs!) ────────────
-// Log shows: "fetch https://apiskeith.top/download/audio?url=ht..."
-// So this domain is reachable from your dyno
-async function tryApisKeith(url) {
-    const res = await axios.get(
-        `https://apiskeith.top/download/facebook?url=${encodeURIComponent(url)}`,
-        {
-            timeout: 25000,
-            headers: { 'User-Agent': 'Mozilla/5.0' }
-        }
-    );
-    const d = res.data;
-    console.log('[FB-DL] ApisKeith response:', JSON.stringify(d).substring(0, 300));
-    const v = d?.url || d?.hd || d?.sd || d?.video || d?.data?.url
-            || d?.data?.hd || d?.result?.url;
-    if (v) return v;
-    throw new Error('apiskeith: no video URL. Response: ' + JSON.stringify(d).substring(0, 150));
-}
-
-// ─── Method 5: apiskeith alternate endpoint ──────────────────
-async function tryApisKeithV2(url) {
-    const res = await axios.get(
-        `https://apiskeith.top/api/fbdl?url=${encodeURIComponent(url)}`,
-        {
-            timeout: 25000,
-            headers: { 'User-Agent': 'Mozilla/5.0' }
-        }
-    );
-    const d = res.data;
-    console.log('[FB-DL] ApisKeith v2 response:', JSON.stringify(d).substring(0, 300));
-    const v = d?.url || d?.hd || d?.sd || d?.data?.url || d?.data?.hd || d?.result?.url;
-    if (v) return v;
-    throw new Error('apiskeith-v2: no URL. Response: ' + JSON.stringify(d).substring(0, 150));
+    throw new Error(`tikwm-fb: code=${d?.code} msg=${d?.msg}`);
 }
 
 // ─── COMMAND ──────────────────────────────────────────────────
@@ -166,16 +107,7 @@ cmd({
 async (conn, mek, m, { from, args, q, reply }) => {
     try {
         if (!q || !q.startsWith('http')) {
-            return reply(`📥 *Facebook Video Downloader*
-━━━━━━━━━━━━━━━━━━━━
-*Usage:* .fb _<Facebook URL>_
-
-*Examples:*
-  .fb https://fb.watch/xxxxx
-  .fb https://www.facebook.com/reel/xxxxx
-  .fb https://www.facebook.com/watch?v=xxxxx
-━━━━━━━━━━━━━━━━━━━━
-> ${BOT_NAME}`);
+            return reply(`📥 *Facebook Video Downloader*\n━━━━━━━━━━━━━━━━━━━━\n*Usage:* .fb _<Facebook URL>_\n\n*Examples:*\n  .fb https://fb.watch/xxxxx\n  .fb https://www.facebook.com/reel/xxxxx\n  .fb https://www.facebook.com/watch?v=xxxxx\n━━━━━━━━━━━━━━━━━━━━\n> ${BOT_NAME}`);
         }
 
         if (!q.includes('facebook.com') && !q.includes('fb.watch') && !q.includes('fb.com')) {
@@ -183,46 +115,56 @@ async (conn, mek, m, { from, args, q, reply }) => {
         }
 
         const fbUrl = q.trim();
-
         await conn.sendMessage(from, { react: { text: '⏳', key: mek.key } });
-        await reply(`⏳ *Downloading Facebook video...*\n━━━━━━━━━━━━━━━━━━━━\n🔗 _${fbUrl.substring(0, 55)}..._\n━━━━━━━━━━━━━━━━━━━━\n> ${BOT_NAME}`);
+        await reply(`⏳ *Downloading...*\n━━━━━━━━━━━━━━━━━━━━\n🔗 _${fbUrl.substring(0, 55)}..._\n━━━━━━━━━━━━━━━━━━━━\n> ${BOT_NAME}`);
 
         let rawVideoUrl = null;
-        const methods = [
-            { name: 'Etacloud',    fn: () => tryEtacloud(fbUrl)    },
-            { name: 'ApisKeith',   fn: () => tryApisKeith(fbUrl)   },
-            { name: 'ApisKeithV2', fn: () => tryApisKeithV2(fbUrl) },
-            { name: 'Cobalt',      fn: () => tryCobalt(fbUrl)      },
-            { name: 'TikwmFB',     fn: () => tryTikwmFb(fbUrl)     },
+
+        // Try apiskeith endpoints first (confirmed reachable domain)
+        const keithEndpoints = [
+            '/download/facebook',
+            '/download/video',
+            '/api/fbdl',
+            '/api/facebook',
+            '/fbdl',
         ];
 
-        for (const method of methods) {
+        for (const ep of keithEndpoints) {
             try {
-                console.log(`[FB-DL] Trying ${method.name}...`);
-                rawVideoUrl = await method.fn();
+                console.log(`[FB-DL] ApisKeith trying: ${ep}`);
+                rawVideoUrl = await tryApisKeith(fbUrl, ep);
                 if (rawVideoUrl) {
-                    console.log(`[FB-DL] ✅ SUCCESS ${method.name}:`, rawVideoUrl.substring(0, 80));
+                    console.log(`[FB-DL] ✅ SUCCESS apiskeith${ep}:`, rawVideoUrl.substring(0, 80));
                     break;
                 }
-            } catch (err) {
-                console.error(`[FB-DL] ❌ FAILED ${method.name}:`, err.message);
+            } catch (e) {
+                console.error(`[FB-DL] ❌ apiskeith${ep}:`, e.message);
+            }
+        }
+
+        // Then try cobalt
+        if (!rawVideoUrl) {
+            try {
+                rawVideoUrl = await tryCobalt(fbUrl);
+                if (rawVideoUrl) console.log('[FB-DL] ✅ SUCCESS Cobalt:', rawVideoUrl.substring(0, 80));
+            } catch (e) {
+                console.error('[FB-DL] ❌ Cobalt:', e.message);
+            }
+        }
+
+        // Then try tikwm
+        if (!rawVideoUrl) {
+            try {
+                rawVideoUrl = await tryTikwmFb(fbUrl);
+                if (rawVideoUrl) console.log('[FB-DL] ✅ SUCCESS TikwmFB:', rawVideoUrl.substring(0, 80));
+            } catch (e) {
+                console.error('[FB-DL] ❌ TikwmFB:', e.message);
             }
         }
 
         if (!rawVideoUrl) {
             await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
-            return reply(`❌ *Download Failed*
-━━━━━━━━━━━━━━━━━━━━
-Could not download this video.
-
-*Possible reasons:*
-  › Video is private or friends-only
-  › Reel requires login
-  › Link has expired
-
-_Try a public video or Reel link_
-━━━━━━━━━━━━━━━━━━━━
-> ${BOT_NAME}`);
+            return reply(`❌ *Download Failed*\n━━━━━━━━━━━━━━━━━━━━\nCould not download this video.\n\n› Video may be private or expired\n› Try a public Facebook video link\n━━━━━━━━━━━━━━━━━━━━\n> ${BOT_NAME}`);
         }
 
         const videoSource = resolveMediaSource(rawVideoUrl);
