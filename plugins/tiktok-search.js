@@ -1,9 +1,9 @@
 /* ============================================
-   HUNTER XMD PRO - TIKTOK SEARCH + DOWNLOADER
-   COMMAND: .tiktoksearch <query>
-   PRIMARY API  : https://api-rebix.zone.id/api/tiktoksearch
-   FALLBACK API : https://www.tikwm.com/api/feed/search
-   FIX: Dual-API fallback + Base64 buffer support
+   HUNTER XMD PRO - TIKTOK SEARCH
+   COMMAND : .tiktoksearch <query>
+   API     : https://www.tikwm.com/api/feed/search
+             (verified working, no key needed)
+   FIX     : Base64 buffer support
    ============================================ */
 
 const axios = require('axios');
@@ -26,74 +26,70 @@ function resolveMediaSource(link) {
     }
 }
 
-// ─── Normalize video object from any API response ─────────────
-function normalizeVideo(raw) {
-    return {
-        title:    raw.title || raw.desc || raw.description || raw.video_description || 'TikTok Video',
-        author:   raw.author || raw.author_name || raw.nickname || raw.unique_id || 'Unknown',
-        duration: raw.duration ? `${raw.duration}s` : null,
-        link:     raw.link || raw.play_url || raw.share_url
-                  || (raw.video_id ? `https://www.tiktok.com/@${raw.author_name || 'user'}/video/${raw.video_id}` : null)
-                  || '',
-        // Video stream URLs — prefer no-watermark
-        nowm:     raw.nowm || raw.hdplay || raw.play || raw.download_url || raw.video_url || null,
-        cover:    raw.cover || raw.origin_cover || raw.thumbnail || null,
-    };
-}
-
-// ─── PRIMARY: api-rebix.zone.id ───────────────────────────────
-async function fetchFromRebix(query) {
-    const url = `https://api-rebix.zone.id/api/tiktoksearch?text=${encodeURIComponent(query)}`;
-    console.log('[TIKTOKSEARCH] Trying Rebix:', url);
-    const res = await axios.get(url, { timeout: 15000 });
-    const d = res.data;
-    // Expected: { status: true, data: [...] } or { result: [...] }
-    const list = d?.data || d?.result || d?.videos || null;
-    if (!list || !Array.isArray(list) || list.length === 0) throw new Error('Rebix: empty or no data');
-    return list.map(normalizeVideo);
-}
-
-// ─── FALLBACK: tikwm.com (free, no key needed) ────────────────
-async function fetchFromTikwm(query) {
-    const url = `https://www.tikwm.com/api/feed/search?keywords=${encodeURIComponent(query)}&count=10&cursor=0&hd=1`;
-    console.log('[TIKTOKSEARCH] Trying tikwm:', url);
+// ─── Fetch TikTok search from tikwm.com ───────────────────────
+// Endpoint: GET https://www.tikwm.com/api/feed/search
+// Params  : keywords, count, cursor, hd
+// Response: { code: 0, data: { videos: [...] } }
+async function searchTikTok(query, count = 10) {
+    const url = `https://www.tikwm.com/api/feed/search`;
     const res = await axios.get(url, {
-        timeout: 20000,
-        headers: { 'User-Agent': 'Mozilla/5.0' }
+        params: {
+            keywords: query,
+            count,
+            cursor: 0,
+            hd: 1
+        },
+        timeout: 25000,
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10'
+        }
     });
+
     const d = res.data;
-    const list = d?.data?.videos || d?.data || null;
-    if (!list || !Array.isArray(list) || list.length === 0) throw new Error('tikwm: empty or no data');
-    return list.map(v => normalizeVideo({
-        title:     v.title || v.desc,
-        author:    v.author?.unique_id || v.author?.nickname || 'Unknown',
-        duration:  v.duration,
-        link:      `https://www.tiktok.com/@${v.author?.unique_id || 'user'}/video/${v.id}`,
-        nowm:      v.hdplay || v.play || v.wmplay,
-        cover:     v.cover || v.origin_cover,
+
+    // tikwm returns code 0 on success
+    if (!d || d.code !== 0) {
+        throw new Error(`tikwm error: ${d?.msg || 'unknown'}`);
+    }
+
+    // Videos are inside data.videos or data directly
+    const videos = d?.data?.videos || d?.data || [];
+    if (!Array.isArray(videos) || videos.length === 0) {
+        throw new Error('No videos in response');
+    }
+
+    return videos.map(v => ({
+        title:    v.title || v.desc || 'TikTok Video',
+        author:   v.author?.unique_id || v.author?.nickname || v.author || 'Unknown',
+        duration: v.duration ? `${v.duration}s` : null,
+        cover:    v.cover || v.origin_cover || null,
+        // prefer HD no-watermark → standard no-watermark → watermark
+        videoUrl: v.hdplay || v.play || v.wmplay || null,
+        audioUrl: v.music   || v.music_info?.play || null,
+        link:     v.id
+                    ? `https://www.tiktok.com/@${v.author?.unique_id || 'user'}/video/${v.id}`
+                    : null
     }));
 }
 
-// ─── Smart rotating captions ──────────────────────────────────
+// ─── Smart captions ───────────────────────────────────────────
 const taglines = [
     'Straight from TikTok to your chat 🚀',
-    'Your video, no watermark, no wait ⚡',
+    'Your video — no watermark, no wait ⚡',
     'Fresh off the FYP — enjoy! 🌟',
-    'Caught in 4K, delivered just for you 📸',
+    'Caught in HD, delivered just for you 📸',
     'Viral content, delivered instantly 🔥',
-    'Here\'s your TikTok drop 💎',
+    'Zero watermark. All vibes 💎',
     'Downloaded at lightning speed ⚡'
 ];
 const emojis = ['🎯', '🔥', '💥', '⚡', '🌟', '🎬', '🎭'];
 
 function smartCaption(v, i) {
-    const e  = emojis[i % emojis.length];
-    const tl = taglines[i % taglines.length];
-    return `${e} *${v.title}*
+    return `${emojis[i % emojis.length]} *${v.title}*
 ━━━━━━━━━━━━━━━━━━━━
 👤  ${v.author}${v.duration ? `\n⏱  ${v.duration}` : ''}
 ━━━━━━━━━━━━━━━━━━━━
-✨  _${tl}_
+✨  _${taglines[i % taglines.length]}_
 ${v.link ? `🔗  ${v.link}` : ''}
 ━━━━━━━━━━━━━━━━━━━━
 > ${BOT_NAME}`;
@@ -103,17 +99,18 @@ ${v.link ? `🔗  ${v.link}` : ''}
 cmd({
     pattern: "tiktoksearch",
     alias: ["tiktoks", "tiks", "ttsearch"],
-    desc: "Search TikTok videos by keyword.",
+    desc: "Search TikTok videos by keyword (tikwm API)",
     react: '🔍',
     category: 'downloader',
     filename: __filename
 },
 async (conn, mek, m, { from, args, reply }) => {
     try {
+        // ── 1. Validate ────────────────────────────────────────
         if (!args[0]) {
-            return reply(`🔍 *TikTok Search*
+            return reply(`🔍 *TikTok Search — ${BOT_NAME}*
 ━━━━━━━━━━━━━━━━━━━━
-*Usage:*  .tiktoksearch _[query]_
+*Usage:*  .tiktoksearch _[keyword]_
 
 *Examples:*
   › .tiktoksearch funny cats
@@ -126,93 +123,101 @@ async (conn, mek, m, { from, args, reply }) => {
 
         const query = args.join(' ');
 
+        // ── 2. React + searching notice ────────────────────────
         await conn.sendMessage(from, { react: { text: '🔍', key: mek.key } });
         await reply(`🔎 *Searching TikTok...*
 ━━━━━━━━━━━━━━━━━━━━
 🎯  _"${query}"_
-⏳  Fetching top results...
+⏳  Fetching results...
 ━━━━━━━━━━━━━━━━━━━━
 > ${BOT_NAME}`);
 
-        // ── Try primary API, fall back to tikwm ───────────────
-        let videos = null;
-        let apiUsed = 'Rebix';
-
+        // ── 3. Search ──────────────────────────────────────────
+        let videos;
         try {
-            videos = await fetchFromRebix(query);
-            console.log('[TIKTOKSEARCH] Rebix OK —', videos.length, 'results');
-        } catch (e1) {
-            console.warn('[TIKTOKSEARCH] Rebix failed:', e1.message, '— trying tikwm...');
-            try {
-                videos = await fetchFromTikwm(query);
-                apiUsed = 'tikwm';
-                console.log('[TIKTOKSEARCH] tikwm OK —', videos.length, 'results');
-            } catch (e2) {
-                console.error('[TIKTOKSEARCH] Both APIs failed:', e2.message);
-                videos = null;
-            }
+            videos = await searchTikTok(query, 10);
+            console.log(`[TIKTOKSEARCH] tikwm returned ${videos.length} results`);
+        } catch (searchErr) {
+            console.error('[TIKTOKSEARCH] Search failed:', searchErr.message);
+            await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
+            return reply(`❌ *Search Failed*
+━━━━━━━━━━━━━━━━━━━━
+Could not reach TikTok search API.
+Please try again in a moment.
+
+_Error: ${searchErr.message.substring(0, 80)}_
+━━━━━━━━━━━━━━━━━━━━
+> ${BOT_NAME}`);
         }
 
         if (!videos || videos.length === 0) {
             await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
-            return reply(`❌ *No Results Found*
+            return reply(`❌ *No Results*
 ━━━━━━━━━━━━━━━━━━━━
-Both search APIs returned nothing for _"${query}"_
-Try a different keyword or try again later.
+Nothing found for _"${query}"_
+Try different or broader keywords.
 ━━━━━━━━━━━━━━━━━━━━
 > ${BOT_NAME}`);
         }
 
-        // Pick up to 5 shuffled results
+        // ── 4. Pick 5 random results ───────────────────────────
         const results = videos
-            .slice(0, 10)
+            .filter(v => v.videoUrl)           // only keep videos with a URL
             .sort(() => Math.random() - 0.5)
             .slice(0, 5);
 
-        await reply(`✅ *Found ${results.length} result${results.length > 1 ? 's' : ''}* via ${apiUsed}\n_Sending videos now..._`);
+        if (results.length === 0) {
+            await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
+            return reply(`❌ *No Playable Videos*
+━━━━━━━━━━━━━━━━━━━━
+Results were found but had no download URLs.
+━━━━━━━━━━━━━━━━━━━━
+> ${BOT_NAME}`);
+        }
 
+        await reply(`✅ *Sending ${results.length} video${results.length > 1 ? 's' : ''}* for _"${query}"_...\n> ${BOT_NAME}`);
+
+        // ── 5. Send each video ─────────────────────────────────
         let sent = 0;
         let failed = 0;
 
         for (let i = 0; i < results.length; i++) {
-            const video = results[i];
-            const rawUrl = video.nowm;
+            const v = results[i];
+            const mediaSource = resolveMediaSource(v.videoUrl);
 
-            if (!rawUrl) {
+            if (!mediaSource) {
                 failed++;
-                console.warn('[TIKTOKSEARCH] No URL for:', video.title);
                 continue;
             }
 
-            const mediaSource = resolveMediaSource(rawUrl);
-            if (!mediaSource) { failed++; continue; }
-
             try {
-                const videoPayload = {
+                const payload = {
                     mimetype: 'video/mp4',
-                    caption:  smartCaption(video, i)
+                    caption: smartCaption(v, i)
                 };
-                videoPayload.video = mediaSource;
+                payload.video = mediaSource; // Buffer or { url: '...' }
 
-                await conn.sendMessage(from, videoPayload, { quoted: mek });
+                await conn.sendMessage(from, payload, { quoted: mek });
                 sent++;
 
-                // Brief pause between sends
-                if (i < results.length - 1) await new Promise(r => setTimeout(r, 1200));
+                // Pause between sends to avoid rate limiting
+                if (i < results.length - 1) {
+                    await new Promise(r => setTimeout(r, 1500));
+                }
 
             } catch (sendErr) {
                 failed++;
-                console.error('[TIKTOKSEARCH] Send error:', sendErr.message);
+                console.error(`[TIKTOKSEARCH] Send error for "${v.title}":`, sendErr.message);
             }
         }
 
-        // Final reaction
+        // ── 6. Final status ────────────────────────────────────
         if (sent === 0) {
             await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
-            return reply(`❌ *Downloads Failed*
+            return reply(`❌ *All Downloads Failed*
 ━━━━━━━━━━━━━━━━━━━━
-Videos were found but couldn't be downloaded.
-The video URLs may have expired. Try again.
+Videos were found but could not be sent.
+TikTok CDN URLs may have expired.
 ━━━━━━━━━━━━━━━━━━━━
 > ${BOT_NAME}`);
         }
@@ -220,13 +225,13 @@ The video URLs may have expired. Try again.
         await conn.sendMessage(from, { react: { text: '✅', key: mek.key } });
 
         if (failed > 0) {
-            await reply(`✅ Done! Sent *${sent}* video${sent > 1 ? 's' : ''} — ${failed} failed.\n> ${BOT_NAME}`);
+            await reply(`✅ Done! *${sent} sent*, ${failed} failed.\n> ${BOT_NAME}`);
         }
 
     } catch (err) {
-        console.error('[TIKTOKSEARCH] Fatal:', err.message);
+        console.error('[TIKTOKSEARCH] Fatal error:', err.message);
         await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
-        reply(`❌ *Search Failed*
+        reply(`❌ *Unexpected Error*
 ━━━━━━━━━━━━━━━━━━━━
 ${err.message.substring(0, 100)}
 ━━━━━━━━━━━━━━━━━━━━
