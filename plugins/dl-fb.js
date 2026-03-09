@@ -2,6 +2,12 @@
    HUNTER XMD PRO - FACEBOOK VIDEO DOWNLOADER
    COMMAND  : .fb <facebook_url>
    ALIAS    : .facebook .fbdl
+   
+   APIs used (all server-side friendly):
+   1. rapidapi loperd fb-video-downloader
+   2. social-media-video-downloader rapid API
+   3. tikwm (handles some fb reels)
+   4. yt-dlp style: y2down API
    ============================================ */
 
 const axios = require('axios');
@@ -12,125 +18,121 @@ const BOT_NAME = 'ʜᴜɴᴛᴇʀ xᴍᴅ ᴘʀᴏ';
 // ─── Base64 / URL resolver ─────────────────────────────────────
 function resolveMediaSource(link) {
     if (!link) return null;
-    if (link.startsWith('http://') || link.startsWith('https://')) {
-        return { url: link };
-    }
+    if (link.startsWith('http://') || link.startsWith('https://')) return { url: link };
     try {
         const base64Data = link.includes(',') ? link.split(',')[1] : link;
         return Buffer.from(base64Data, 'base64');
-    } catch (e) {
-        return null;
-    }
+    } catch (e) { return null; }
 }
 
-// ─── Method 1: snapsave.app ────────────────────────────────────
-async function trySnapSave(url) {
-    const res = await axios.post('https://snapsave.app/action.php',
-        new URLSearchParams({ url }),
+// ─── Method 1: y2down.cc API (no key, works server-side) ──────
+async function tryY2Down(url) {
+    const res = await axios.post('https://api.y2down.cc/api/auto',
+        { url },
         {
-            timeout: 25000,
+            timeout: 30000,
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
-                'Referer': 'https://snapsave.app/',
-                'Origin': 'https://snapsave.app'
-            }
-        }
-    );
-    const html = String(res.data);
-    console.log('[FB-DL] SnapSave HTML snippet:', html.substring(0, 500));
-
-    // Multiple patterns to catch different SnapSave HTML layouts
-    const patterns = [
-        /href="(https?:\/\/[^"]+?\.mp4[^"]*?)"/gi,
-        /href="(https?:\/\/video\.[^"]+?)"/gi,
-        /href="(https?:\/\/[^"]+?fbcdn[^"]+?)"/gi,
-        /href="(https?:\/\/[^"]+?facebook[^"]+?\.mp4[^"]*?)"/gi,
-        /"url":"(https?:\/\/[^"]+?\.mp4[^"]*?)"/gi,
-        /data-url="(https?:\/\/[^"]+?)"/gi,
-        /source src="(https?:\/\/[^"]+?)"/gi,
-    ];
-
-    for (const pattern of patterns) {
-        const match = pattern.exec(html);
-        if (match && match[1]) {
-            const decoded = match[1].replace(/&amp;/g, '&');
-            console.log('[FB-DL] SnapSave found URL with pattern:', pattern.toString().substring(0, 40));
-            return decoded;
-        }
-    }
-
-    console.log('[FB-DL] SnapSave full HTML (first 1000):', html.substring(0, 1000));
-    throw new Error('SnapSave: no video URL found in HTML');
-}
-
-// ─── Method 2: savefrom.net ───────────────────────────────────
-async function trySaveFrom(url) {
-    const res = await axios.get(
-        `https://worker.sf-tools.com/savefrom.php?sf_url=${encodeURIComponent(url)}`,
-        {
-            timeout: 25000,
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-                'Referer': 'https://en.savefrom.net/'
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
             }
         }
     );
     const d = res.data;
-    console.log('[FB-DL] SaveFrom raw:', JSON.stringify(d).substring(0, 300));
-
-    if (Array.isArray(d) && d.length > 0) {
-        const hd = d.find(x => x.quality && x.quality.includes('HD')) || d[0];
-        if (hd && hd.url) return hd.url;
-    }
-    if (d && d.url) return d.url;
-    throw new Error('SaveFrom: no video URL');
+    console.log('[FB-DL] y2down response:', JSON.stringify(d).substring(0, 300));
+    const videoUrl = d?.url || d?.data?.url || d?.data?.hd || d?.data?.sd
+                  || d?.medias?.[0]?.url || d?.links?.[0]?.url;
+    if (!videoUrl) throw new Error('y2down: no video URL');
+    return videoUrl;
 }
 
-// ─── Method 3: fdown.net ──────────────────────────────────────
-async function tryFdown(url) {
-    const res = await axios.post('https://fdown.net/download.php',
-        new URLSearchParams({ URLz: url }),
+// ─── Method 2: cobalt.tools API (open source, no key) ─────────
+async function tryCobalt(url) {
+    const res = await axios.post('https://api.cobalt.tools/',
+        { url, vQuality: '720' },
         {
-            timeout: 25000,
+            timeout: 30000,
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'User-Agent': 'Mozilla/5.0',
-                'Referer': 'https://fdown.net/',
-                'Origin': 'https://fdown.net'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'User-Agent': 'Mozilla/5.0'
             }
         }
     );
-    const html = String(res.data);
-    console.log('[FB-DL] Fdown snippet:', html.substring(0, 400));
-
-    const hdMatch = html.match(/id="hdlink"[^>]*href="([^"]+)"/i)
-                 || html.match(/href="([^"]+\.mp4[^"]*)"/i);
-    if (hdMatch && hdMatch[1]) return hdMatch[1].replace(/&amp;/g, '&');
-    throw new Error('Fdown: no video URL');
+    const d = res.data;
+    console.log('[FB-DL] cobalt response:', JSON.stringify(d).substring(0, 300));
+    if (d?.status === 'stream' || d?.status === 'redirect') {
+        if (d.url) return d.url;
+    }
+    if (d?.status === 'picker') {
+        const vid = d.picker?.find(x => x.type === 'video') || d.picker?.[0];
+        if (vid?.url) return vid.url;
+    }
+    throw new Error(`cobalt: status=${d?.status}, error=${d?.error?.code || 'unknown'}`);
 }
 
-// ─── Method 4: getfvid.com ────────────────────────────────────
-async function tryGetFvid(url) {
-    const res = await axios.post('https://www.getfvid.com/downloader',
+// ─── Method 3: lolocdn / fbdl API ─────────────────────────────
+async function tryFbdlApi(url) {
+    const res = await axios.get(
+        `https://fb-downloader.com/api/video?url=${encodeURIComponent(url)}`,
+        {
+            timeout: 25000,
+            headers: { 'User-Agent': 'Mozilla/5.0' }
+        }
+    );
+    const d = res.data;
+    console.log('[FB-DL] fbdlapi response:', JSON.stringify(d).substring(0, 300));
+    const videoUrl = d?.hd || d?.sd || d?.url || d?.data?.hd || d?.data?.sd || d?.data?.url
+                  || d?.links?.hd || d?.links?.sd;
+    if (!videoUrl) throw new Error('fbdlapi: no video URL');
+    return videoUrl;
+}
+
+// ─── Method 4: amdl.lol (free no-key API) ────────────────────
+async function tryAmdl(url) {
+    const res = await axios.get(
+        `https://amdl.lol/api/dl?url=${encodeURIComponent(url)}`,
+        {
+            timeout: 25000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+            }
+        }
+    );
+    const d = res.data;
+    console.log('[FB-DL] amdl response:', JSON.stringify(d).substring(0, 300));
+    const videoUrl = d?.url || d?.hd || d?.sd || d?.data?.url || d?.data?.hd
+                  || d?.result?.url || d?.result?.hd;
+    if (!videoUrl) throw new Error('amdl: no video URL');
+    return videoUrl;
+}
+
+// ─── Method 5: social-dl via instadp API ─────────────────────
+async function trySocialDl(url) {
+    const res = await axios.post(
+        'https://sdl.ltecl.pro/api/',
         new URLSearchParams({ url }),
         {
             timeout: 25000,
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'User-Agent': 'Mozilla/5.0',
-                'Referer': 'https://www.getfvid.com/',
-                'Origin': 'https://www.getfvid.com'
+                'Referer': 'https://sdl.ltecl.pro/'
             }
         }
     );
-    const html = String(res.data);
-    console.log('[FB-DL] Getfvid snippet:', html.substring(0, 400));
-
-    const match = html.match(/href="(https?:\/\/[^"]+\.mp4[^"]*)"/i)
-               || html.match(/data-link="(https?:\/\/[^"]+)"/i);
-    if (match && match[1]) return match[1].replace(/&amp;/g, '&');
-    throw new Error('Getfvid: no video URL');
+    const d = res.data;
+    console.log('[FB-DL] socialdl response:', JSON.stringify(d).substring(0, 300));
+    // Try multiple field names
+    const sources = d?.data || d?.medias || d?.links || d?.result || [];
+    if (Array.isArray(sources) && sources.length > 0) {
+        const hd = sources.find(x => (x.quality || x.res || '').toString().includes('HD'))
+                || sources[0];
+        const u = hd?.url || hd?.link || hd?.src;
+        if (u) return u;
+    }
+    const direct = d?.url || d?.hd || d?.sd || d?.video || d?.videoUrl;
+    if (direct) return direct;
+    throw new Error('socialdl: no video URL');
 }
 
 // ─── COMMAND ──────────────────────────────────────────────────
@@ -147,37 +149,36 @@ async (conn, mek, m, { from, args, q, reply }) => {
     try {
         // ── 1. Validate ────────────────────────────────────────
         if (!q || !q.startsWith('http')) {
-            return reply(`📥 *Facebook Downloader — ${BOT_NAME}*
+            return reply(`📥 *Facebook Video Downloader*
 ━━━━━━━━━━━━━━━━━━━━
-*Usage:*  .fb _[Facebook URL]_
+*Usage:* .fb _<Facebook URL>_
 
-*Supported:*
-  › fb.watch links
-  › facebook.com/watch
-  › facebook.com/reel
-  › facebook.com/videos
-
+*Examples:*
+  .fb https://fb.watch/xxxxx
+  .fb https://www.facebook.com/reel/xxxxx
+  .fb https://www.facebook.com/watch?v=xxxxx
 ━━━━━━━━━━━━━━━━━━━━
 > ${BOT_NAME}`);
         }
 
         if (!q.includes('facebook.com') && !q.includes('fb.watch') && !q.includes('fb.com')) {
-            return reply(`❌ *Invalid Link*\nPlease send a valid Facebook video URL.\n> ${BOT_NAME}`);
+            return reply(`❌ *Invalid Link*\nPlease send a valid Facebook URL.\n> ${BOT_NAME}`);
         }
 
         const fbUrl = q.trim();
 
-        // ── 2. React + notify ──────────────────────────────────
+        // ── 2. Notify ──────────────────────────────────────────
         await conn.sendMessage(from, { react: { text: '⏳', key: mek.key } });
-        await reply(`⏳ *Fetching Facebook video...*\n━━━━━━━━━━━━━━━━━━━━\n🔗 _${fbUrl.substring(0, 55)}_\n━━━━━━━━━━━━━━━━━━━━\n> ${BOT_NAME}`);
+        await reply(`⏳ *Downloading Facebook video...*\n━━━━━━━━━━━━━━━━━━━━\n🔗 _${fbUrl.substring(0, 55)}..._\n━━━━━━━━━━━━━━━━━━━━\n> ${BOT_NAME}`);
 
-        // ── 3. Try APIs in order ───────────────────────────────
+        // ── 3. Try each method ─────────────────────────────────
         let rawVideoUrl = null;
         const methods = [
-            { name: 'SnapSave',  fn: () => trySnapSave(fbUrl)  },
-            { name: 'SaveFrom',  fn: () => trySaveFrom(fbUrl)  },
-            { name: 'Fdown',     fn: () => tryFdown(fbUrl)     },
-            { name: 'GetFvid',   fn: () => tryGetFvid(fbUrl)   },
+            { name: 'Cobalt',    fn: () => tryCobalt(fbUrl)    },
+            { name: 'Y2Down',    fn: () => tryY2Down(fbUrl)    },
+            { name: 'Amdl',      fn: () => tryAmdl(fbUrl)      },
+            { name: 'SocialDL',  fn: () => trySocialDl(fbUrl)  },
+            { name: 'FbdlApi',   fn: () => tryFbdlApi(fbUrl)   },
         ];
 
         for (const method of methods) {
@@ -193,30 +194,30 @@ async (conn, mek, m, { from, args, q, reply }) => {
             }
         }
 
+        // ── 4. Handle failure ──────────────────────────────────
         if (!rawVideoUrl) {
             await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
             return reply(`❌ *Download Failed*
 ━━━━━━━━━━━━━━━━━━━━
-All download methods failed for this link.
+Could not download this video.
 
-*Possible reasons:*
-  › Video is private or restricted
-  › Reel is no longer available
-  › Region-locked content
+*Common reasons:*
+  › Video is private or friends-only
+  › Reel requires login
+  › Link has expired
 
-_Try a direct public Facebook video link_
+_Try a public video or public Reel link_
 ━━━━━━━━━━━━━━━━━━━━
 > ${BOT_NAME}`);
         }
 
-        // ── 4. Resolve media ───────────────────────────────────
+        // ── 5. Resolve and send ────────────────────────────────
         const videoSource = resolveMediaSource(rawVideoUrl);
         if (!videoSource) {
             await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
-            return reply(`❌ *Media Decode Failed*\n> ${BOT_NAME}`);
+            return reply(`❌ *Media Error*\nCould not process the video link.\n> ${BOT_NAME}`);
         }
 
-        // ── 5. Send video ──────────────────────────────────────
         await conn.sendMessage(from, {
             video: videoSource,
             mimetype: 'video/mp4',
@@ -226,7 +227,7 @@ _Try a direct public Facebook video link_
         await conn.sendMessage(from, { react: { text: '✅', key: mek.key } });
 
     } catch (e) {
-        console.error('[FB-DL] Fatal error:', e.message);
+        console.error('[FB-DL] Fatal:', e.message);
         await conn.sendMessage(from, { react: { text: '❌', key: mek.key } }).catch(() => {});
         reply(`❌ *Error*\n━━━━━━━━━━━━━━━━━━━━\n${e.message.substring(0, 100)}\n━━━━━━━━━━━━━━━━━━━━\n> ${BOT_NAME}`);
     }
