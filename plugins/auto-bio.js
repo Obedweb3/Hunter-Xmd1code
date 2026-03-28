@@ -25,6 +25,13 @@ function buildBio(template) {
         .replace(/{botname}/gi, config.BOT_NAME || 'Hunter XMD');
 }
 
+/**
+ * Starts the automatic biography update process.
+ *
+ * This function clears any existing interval for auto-bio updates and sets a new interval that updates the user's profile status every minute. It builds the biography text using the buildBio function and handles any potential errors during the update process by logging them to the console. The process is initiated by calling this function with a connection object.
+ *
+ * @param {Object} conn - The connection object used to update the profile status.
+ */
 function startAutoBio(conn) {
     if (autoBioInterval) clearInterval(autoBioInterval);
     autoBioInterval = setInterval(async () => {
@@ -38,6 +45,9 @@ function startAutoBio(conn) {
     console.log('✅ Auto-bio started');
 }
 
+/**
+ * Stops the automatic bio updates and clears the interval.
+ */
 function stopAutoBio() {
     if (autoBioInterval) {
         clearInterval(autoBioInterval);
