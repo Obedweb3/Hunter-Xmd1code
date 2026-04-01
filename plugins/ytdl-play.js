@@ -114,6 +114,9 @@ cmd({
 });
 
 // Helper: Send audio with thumbnail
+/**
+ * Sends an audio file and its thumbnail to a specified recipient.
+ */
 async function sendAudio(conn, from, mek, url, title, thumbnail) {
     // Send thumbnail with caption
     await conn.sendMessage(from, {
@@ -131,6 +134,15 @@ async function sendAudio(conn, from, mek, url, title, thumbnail) {
 }
 
 // API 1: Y2Mate (Working)
+/**
+ * Fetch the download URL for a video from Y2Mate.
+ *
+ * This function sends a POST request to the Y2Mate API with the provided video URL, requesting the conversion to MP3 format at a specified quality. It processes the response to extract the download URL, throwing an error if no valid URL is returned. The function handles any exceptions that occur during the fetch operation.
+ *
+ * @param videoUrl - The URL of the video to be converted.
+ * @returns The download URL for the converted video.
+ * @throws Error If no download URL is provided in the response from Y2Mate.
+ */
 async function fetchFromY2Mate(videoUrl) {
     try {
         // Using y2mate.sx API
@@ -159,6 +171,17 @@ async function fetchFromY2Mate(videoUrl) {
 }
 
 // API 2: SaveFrom style (Alternative)
+/**
+ * Fetch the download URL for a video from SaveFrom.net.
+ *
+ * This function makes an asynchronous request to the SaveFrom API using the provided videoUrl.
+ * It handles the response by checking for a valid download URL in the returned data.
+ * If the URL is not found, it throws an error. Any errors during the fetch process are re-thrown for handling upstream.
+ *
+ * @param videoUrl - The URL of the video to fetch the download link for.
+ * @returns The download URL for the video in MP3 format.
+ * @throws Error If no download URL is found or if the fetch operation fails.
+ */
 async function fetchFromSaveFrom(videoUrl) {
     try {
         const response = await fetch(`https://api.savefrom.net/api/convert?url=${encodeURIComponent(videoUrl)}&format=mp3`, {
@@ -179,6 +202,17 @@ async function fetchFromSaveFrom(videoUrl) {
 }
 
 // API 3: YTMP3.cc (Another alternative)
+/**
+ * Fetch the download URL for an MP3 file from YTMP3 based on the provided video URL.
+ *
+ * This function makes an asynchronous request to the YTMP3 API to convert a video URL into an MP3 format.
+ * It handles the response by checking for a valid download URL and throws an error if the URL is not present.
+ * Any errors during the fetch process are caught and rethrown for further handling.
+ *
+ * @param videoUrl - The URL of the video to be converted to MP3.
+ * @returns The download URL for the converted MP3 file.
+ * @throws Error If no download URL is returned from YTMP3 or if there is an error during the fetch process.
+ */
 async function fetchFromYTMP3(videoUrl) {
     try {
         const response = await fetch(`https://d.ymcdn.org/api/v1/convert?url=${encodeURIComponent(videoUrl)}&format=mp3`, {
