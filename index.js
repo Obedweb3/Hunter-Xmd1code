@@ -538,6 +538,16 @@ let sessionCloseCount = 0;
 const MAX_MAC_ERRORS = 3;
 const MAX_SESSION_CLOSES = 10;
 
+/**
+ * Establishes a connection to WhatsApp and manages the connection lifecycle.
+ *
+ * This function initializes the WhatsApp connection, handles retries on connection failures,
+ * and sets up event listeners for various connection updates, message handling, and error detection.
+ * It also manages session data and auto-responds to messages based on predefined configurations.
+ *
+ * @returns {Promise<void>} A promise that resolves when the connection is successfully established.
+ * @throws {Error} If the connection fails after the maximum number of retries.
+ */
 async function connectToWA() {
     logDivider('WHATSAPP CONNECTION');
     logConnection('CONNECTING', 'Initializing...');
@@ -545,6 +555,14 @@ async function connectToWA() {
     let retryCount = 0;
     const maxRetries = 5;
     
+    /**
+     * Attempt to establish a connection to the WhatsApp service.
+     *
+     * This asynchronous function initializes the connection by setting up authentication state, fetching the latest Baileys version, and configuring the socket connection with various parameters. It handles connection updates, including QR code generation, reconnection logic on disconnection, and message handling for incoming messages and deleted messages. Additionally, it manages auto-reply and command processing based on the received messages, while also logging relevant information and errors throughout the process.
+     *
+     * @returns {Promise<void>} A promise that resolves when the connection attempt is complete.
+     * @throws {Error} If the connection fails, an error is logged and a retry mechanism is initiated.
+     */
     async function attemptConnection() {
         try {
             const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/sessions/');
