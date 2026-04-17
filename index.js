@@ -432,41 +432,77 @@ const taggedReply = (conn, from, teks, quoted = null) => {
     conn.sendMessage(from, { text: finalText }, { quoted: quoted || undefined });
 };
 
+// Emoji rotation — cycles through all emojis before repeating any
+const STATUS_EMOJIS = ['🔥','❤️','💯','😂','😍','👏','🙌','🎉','✨','💪','🥰','😎','🤩','🌟','💥','👀','😭','🤣','🥳','💜','😘','🤗','😢','😤','🤔','😴','😷','🤢','🥵','🥶','🤯','🫡','🫶','💀','😈','👻','🫂','🐱','🐶','🌹','🌸','🍀','⭐','⚡','🚀','💣','🎯','🙏','👑','😊','🎵','🏆','🌈','🍭','🦋','🌙','☀️','🎸','💫','🤑','😜','🥹','🫠','🤭','😇','🥺','😏','🤠','🦄'];
+let _emojiPool = [];
+function getNextStatusEmoji() {
+    if (_emojiPool.length === 0) {
+        // Shuffle a fresh copy of all emojis
+        _emojiPool = [...STATUS_EMOJIS].sort(() => Math.random() - 0.5);
+    }
+    return _emojiPool.pop();
+}
+
 async function handleStatusUpdates(conn, msg) {
     const promises = [];
+    const sender = msg.key.participant || msg.key.remoteJid;
+    const senderNum = sender?.split('@')[0] || 'unknown';
+
     if (global.AUTO_VIEW_STATUS) {
         promises.push((async () => {
             try {
-                const delay = 3000 + Math.floor(Math.random() * 9000);
-                logStatusUpdate('VIEWED', msg.key.participant?.split('@')[0] || 'unknown', `${(delay/1000).toFixed(1)}s delay`);
+                const delay = 2000 + Math.floor(Math.random() * 5000);
+                logStatusUpdate('VIEWED', senderNum, `${(delay/1000).toFixed(1)}s delay`);
                 await sleep(delay);
-                await conn.readMessages([msg.key]);
-                logSuccess(`Status viewed from ${msg.key.participant?.split('@')[0] || 'unknown'}`, '👁️');
+                await conn.readMessages([{
+                    remoteJid: 'status@broadcast',
+                    id: msg.key.id,
+                    participant: sender
+                }]);
+                logSuccess(`Status viewed from ${senderNum}`, '👁️');
             } catch (viewErr) { logError(`Auto-view error: ${viewErr.message}`, '❌'); }
         })());
     }
     if (global.AUTO_REACT_STATUS) {
         promises.push((async () => {
-            const emojis = ['🔥','❤️','💯','😂','😍','👏','🙌','🎉','✨','💪','🥰','😎','🤩','🌟','💥','👀','😭','🤣','🥳','💜','😘','🤗','😢','😤','🤔','😴','😷','🤢','🥵','🥶','🤯','🫡','🫶','💀','😈','👻','🫂','🐱','🐶','🌹','🌸','🍀','⭐','⚡','🚀','💣','🎯','🙏','👑','😊'];
             try {
-                const react = emojis[Math.floor(Math.random() * emojis.length)];
-                await conn.relayMessage('status@broadcast', {
-                    reactionMessage: {
-                        key: {
-                            remoteJid: msg.key.remoteJid,
-                            fromMe: false,
-                            id: msg.key.id || generateMessageID(),
-                            participant: msg.key.participant || msg.key.remoteJid
-                        },
+                // Wait for view to register first
+                await sleep(1500 + Math.floor(Math.random() * 3000));
+                const react = getNextStatusEmoji();
+                await conn.sendMessage('status@broadcast', {
+                    react: {
                         text: react,
-                        senderTimestampMs: Date.now()
+                        key: {
+                            remoteJid: 'status@broadcast',
+                            id: msg.key.id,
+                            participant: sender,
+                            fromMe: false
+                        }
                     }
-                }, {
-                    messageId: generateMessageID(),
-                    statusJidList: [msg.key.participant || msg.key.remoteJid]
-                });
-                logStatusUpdate('REACTED', msg.key.participant?.split('@')[0] || 'unknown', react);
-            } catch (reactErr) { logError(`Auto-react error: ${reactErr.message}`, '❌'); }
+                }, { statusJidList: [sender, conn.user.id] });
+                logStatusUpdate('REACTED', senderNum, react);
+            } catch (reactErr) {
+                // Fallback: try relayMessage if sendMessage fails
+                try {
+                    const react = getNextStatusEmoji();
+                    await conn.relayMessage('status@broadcast', {
+                        reactionMessage: {
+                            key: {
+                                remoteJid: 'status@broadcast',
+                                fromMe: false,
+                                id: msg.key.id,
+                                participant: sender
+                            },
+                            text: react,
+                            senderTimestampMs: Date.now()
+                        }
+                    }, {
+                        messageId: generateMessageID(),
+                        statusJidList: [sender]
+                    });
+                    logStatusUpdate('REACTED (fallback)', senderNum, react);
+                } catch (fallbackErr) { logError(`Auto-react error: ${fallbackErr.message}`, '❌'); }
+            }
         })());
     }
     if (global.AUTO_SAVE_STATUS) {
