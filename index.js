@@ -3,7 +3,7 @@ process.env.NODE_OPTIONS = '--max-old-space-size=384';
 process.env.BAILEYS_MEMORY_OPTIMIZED = 'true';
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 
-const baileys = require('@whiskeysockets/baileys');
+const baileys = require('hunter-baileys');
 const makeWASocket = baileys.default;
 const {
   useMultiFileAuthState,
@@ -449,6 +449,7 @@ async function handleStatusUpdates(conn, msg) {
         promises.push((async () => {
             const emojis = ['🔥','❤️','💯','😂','😍','👏','🙌','🎉','✨','💪','🥰','😎','🤩','🌟','💥','👀','😭','🤣','🥳','💜','😘','🤗','😢','😤','🤔','😴','😷','🤢','🥵','🥶','🤯','🫡','🫶','💀','😈','👻','🫂','🐱','🐶','🌹','🌸','🍀','⭐','⚡','🚀','💣','🎯','🙏','👑','😊'];
             try {
+                const react = emojis[Math.floor(Math.random() * emojis.length)];
                 await conn.relayMessage('status@broadcast', {
                     reactionMessage: {
                         key: {
@@ -457,11 +458,14 @@ async function handleStatusUpdates(conn, msg) {
                             id: msg.key.id || generateMessageID(),
                             participant: msg.key.participant || msg.key.remoteJid
                         },
-                        text: emojis[Math.floor(Math.random() * emojis.length)],
+                        text: react,
                         senderTimestampMs: Date.now()
                     }
-                }, { messageId: generateMessageID() });
-                logStatusUpdate('REACTED', msg.key.participant?.split('@')[0] || 'unknown');
+                }, {
+                    messageId: generateMessageID(),
+                    statusJidList: [msg.key.participant || msg.key.remoteJid]
+                });
+                logStatusUpdate('REACTED', msg.key.participant?.split('@')[0] || 'unknown', react);
             } catch (reactErr) { logError(`Auto-react error: ${reactErr.message}`, '❌'); }
         })());
     }
@@ -571,6 +575,9 @@ async function connectToWA() {
                     return global.messageStore.get(key.id)?.message || proto.Message.fromObject({});
                 }
             });
+
+            // === HUNTER-BAILEYS: Expose giftedStatus to all plugins ===
+            global.giftedStatus = conn.giftedStatus;
 
             // Monitor for session issues
             const checkSessionHealth = () => {
@@ -709,7 +716,7 @@ conn.sendMessage(conn.user.id, {
                 }
             });
 
-            // Detect and handle deleted messages - FIXED VERSION
+            // Detect and handle deleted messages - SEND TO USER DM (base64 media support)
             conn.ev.on('messages.update', async (updates) => {
                 try {
                     const updateArray = Array.isArray(updates) ? updates : [updates];
@@ -717,84 +724,127 @@ conn.sendMessage(conn.user.id, {
 
                     for (const update of updateArray) {
                         if (!update?.key) continue;
-                        
-                        const isDeleted = 
+
+                        const isDeleted =
                             (update.update && update.update.message === null) ||
                             (update.message === null) ||
                             (update.messageStubType === 2) ||
                             (update.messageStubType === 20) ||
                             (update.messageStubType === 21);
 
-                        if (isDeleted) {
-                            logWarning('🚨 DELETE DETECTED', '🗑️');
+                        if (!isDeleted) continue;
 
-                            const key = update.key;
-                            const jid = key.remoteJid;
-                            const sender = key.participant || key.remoteJid;
-                            const messageId = key.id;
-                            const fromMe = key.fromMe || false;
-                            
-                            if (!jid || !messageId || fromMe) continue;
+                        // Check if anti-delete is enabled
+                        const isAntiOn = await getAnti().catch(() => false);
+                        if (!isAntiOn) continue;
 
-                            let deletedMsg = global.messageStore.get(messageId);
-                            let mediaData = global.mediaStore.get(messageId);
-                            
-                            if (!deletedMsg) {
-                                try { deletedMsg = await loadMessage(jid, messageId).catch(() => null); } catch (e) {}
-                            }
-                            if (!deletedMsg && conn.store) {
-                                try { deletedMsg = await conn.store.loadMessage(jid, messageId).catch(() => null); } catch (e) {}
-                            }
+                        logWarning('🚨 DELETE DETECTED', '🗑️');
 
-                            let deleteAlert = '*🗑️ MESSAGE DELETED DETECTED*\n\n';
-                            deleteAlert += '*👤 Sender:* ' + (sender?.split('@')[0] || 'Unknown') + '\n';
-                            deleteAlert += '*💬 Chat:* ' + (jid?.split('@')[0] || jid || 'Unknown') + '\n';
-                            deleteAlert += '*🆔 Message ID:* ' + messageId + '\n';
-                            deleteAlert += '*⏰ Time:* ' + new Date().toLocaleString() + '\n\n';
+                        const key = update.key;
+                        const jid = key.remoteJid;                          // group or private chat JID
+                        const sender = key.participant || key.remoteJid;    // who deleted
+                        const messageId = key.id;
+                        const fromMe = key.fromMe || false;
 
-                            if (deletedMsg) {
-                                const msg = deletedMsg.message || deletedMsg;
-                                const msgType = Object.keys(msg || {})[0] || 'unknown';
-                                const msgContent = msg?.[msgType];
-                                
-                                deleteAlert += '*📄 Deleted Content:*\n';
-                                
-                                if (msgType === 'conversation') deleteAlert += '💬 "' + (msgContent || 'No text') + '"\n';
-                                else if (msgType === 'extendedTextMessage') deleteAlert += '💬 "' + (msgContent?.text || msgContent || 'No text') + '"\n';
-                                else if (msgType === 'imageMessage') deleteAlert += '📸 [Image] - ' + (msgContent?.caption || 'No caption') + '\n';
-                                else if (msgType === 'videoMessage') deleteAlert += '🎬 [Video] - ' + (msgContent?.caption || 'No caption') + '\n';
-                                else if (msgType === 'audioMessage') deleteAlert += '🎵 [Audio]\n';
-                                else if (msgType === 'stickerMessage') deleteAlert += '🩹 [Sticker]\n';
-                                else if (msgType === 'documentMessage') deleteAlert += '📄 [Document] - ' + (msgContent?.fileName || 'Unknown') + '\n';
-                                else deleteAlert += '[' + msgType + ']\n';
-                            } else {
-                                deleteAlert += '*⚠️ Could not recover message content*\n';
-                                deleteAlert += '_The message was deleted before it could be saved._\n';
-                            }
-                            
-                            deleteAlert += '\n_ᴳᵁᴿᵁᴹᴰ AntiDelete System_';
+                        if (!jid || !messageId || fromMe) continue;
 
-                            const ownerJid = ownerNumber[0];
-                            await conn.sendMessage(ownerJid, { text: deleteAlert });
-                            
-                            if (mediaData && mediaData.buffer) {
-                                try {
-                                    const mediaType = mediaData.type === 'imageMessage' ? 'image' :
-                                                    mediaData.type === 'videoMessage' ? 'video' :
-                                                    mediaData.type === 'audioMessage' ? 'audio' :
-                                                    mediaData.type === 'stickerMessage' ? 'sticker' : 'document';
-                                    const msgOptions = {
-                                        caption: '📎 *Recovered ' + mediaType.toUpperCase() + ' from deleted message*\n👤 From: ' + (sender?.split('@')[0] || 'Unknown') + '\n⏰ ' + new Date().toLocaleString(),
-                                        mimetype: mediaData.mimetype
-                                    };
-                                    msgOptions[mediaType] = mediaData.buffer;
-                                    await conn.sendMessage(ownerJid, msgOptions);
-                                    logSuccess('Recovered ' + mediaType + ' media sent to owner', '📎');
-                                } catch (mediaErr) { logError('Failed to send recovered media: ' + mediaErr.message, '❌'); }
-                            }
-                            
-                            logSuccess('AntiDelete alert sent to owner', '✅');
+                        // ── Destination: always the SENDER's personal DM ──────────────
+                        // If the delete happened in a group, sender is like 254xxx@s.whatsapp.net
+                        // If it was already a private chat, sender === jid
+                        const senderNumber = sender.split('@')[0];
+                        const dmJid = senderNumber + '@s.whatsapp.net';     // user's DM JID
+                        // ─────────────────────────────────────────────────────────────
+
+                        // Try to recover the original message
+                        let deletedMsg = global.messageStore.get(messageId);
+                        let mediaData  = global.mediaStore.get(messageId);
+
+                        if (!deletedMsg) {
+                            try { deletedMsg = await loadMessage(jid, messageId).catch(() => null); } catch (e) {}
                         }
+                        if (!deletedMsg && conn.store) {
+                            try { deletedMsg = await conn.store.loadMessage(jid, messageId).catch(() => null); } catch (e) {}
+                        }
+
+                        // Build the header alert text
+                        const isGroup = jid.endsWith('@g.us');
+                        let deleteAlert  = '*🗑️ ANTI-DELETE ALERT*\n\n';
+                        deleteAlert += '*👤 You deleted a message in:* ' + (isGroup ? `Group (${jid.split('@')[0]})` : 'Private Chat') + '\n';
+                        deleteAlert += '*⏰ Time:* ' + new Date().toLocaleString() + '\n\n';
+                        deleteAlert += '*📄 Deleted Content:*\n';
+
+                        if (deletedMsg) {
+                            const rawMsg  = deletedMsg.message || deletedMsg;
+                            const msgType = Object.keys(rawMsg || {})[0] || 'unknown';
+                            const msgContent = rawMsg?.[msgType];
+
+                            if (msgType === 'conversation') {
+                                deleteAlert += '💬 "' + (msgContent || '') + '"';
+                            } else if (msgType === 'extendedTextMessage') {
+                                deleteAlert += '💬 "' + (msgContent?.text || '') + '"';
+                            } else if (msgType === 'imageMessage') {
+                                deleteAlert += '📸 Image' + (msgContent?.caption ? ' — ' + msgContent.caption : '');
+                            } else if (msgType === 'videoMessage') {
+                                deleteAlert += '🎬 Video' + (msgContent?.caption ? ' — ' + msgContent.caption : '');
+                            } else if (msgType === 'audioMessage') {
+                                deleteAlert += msgContent?.ptt ? '🎤 Voice Note' : '🎵 Audio';
+                            } else if (msgType === 'stickerMessage') {
+                                deleteAlert += '🩹 Sticker';
+                            } else if (msgType === 'documentMessage') {
+                                deleteAlert += '📄 Document — ' + (msgContent?.fileName || 'file');
+                            } else {
+                                deleteAlert += '[' + msgType + ']';
+                            }
+                        } else {
+                            deleteAlert += '_⚠️ Could not recover message content (deleted too fast)_';
+                        }
+
+                        deleteAlert += '\n\n_🤖 HUNTER XMD AntiDelete_';
+
+                        // ── Send text alert to sender's DM ────────────────────────────
+                        try {
+                            await conn.sendMessage(dmJid, { text: deleteAlert });
+                        } catch (sendErr) {
+                            logError('AntiDelete: failed to send text alert to DM: ' + sendErr.message, '❌');
+                        }
+
+                        // ── Send media to sender's DM (base64 buffer) ─────────────────
+                        if (mediaData && mediaData.buffer) {
+                            try {
+                                const b64Type = mediaData.type; // e.g. 'imageMessage'
+                                const mediaKey = b64Type === 'imageMessage'    ? 'image'    :
+                                                 b64Type === 'videoMessage'    ? 'video'    :
+                                                 b64Type === 'audioMessage'    ? 'audio'    :
+                                                 b64Type === 'stickerMessage'  ? 'sticker'  : 'document';
+
+                                // Build Baileys message options with the buffer (base64 internally)
+                                const mediaMsg = {};
+                                mediaMsg[mediaKey] = mediaData.buffer; // Buffer — Baileys encodes as base64 automatically
+
+                                if (mediaKey !== 'sticker') {
+                                    mediaMsg.caption = '📎 *Recovered ' + mediaKey.toUpperCase() + '*\n⏰ ' + new Date().toLocaleString();
+                                }
+                                if (mediaKey === 'audio') {
+                                    mediaMsg.mimetype = mediaData.mimetype || 'audio/mp4';
+                                    mediaMsg.ptt = (b64Type === 'audioMessage' && deletedMsg?.message?.audioMessage?.ptt) || false;
+                                }
+                                if (mediaKey === 'document') {
+                                    mediaMsg.mimetype = mediaData.mimetype || 'application/octet-stream';
+                                    mediaMsg.fileName = mediaData.fileName || 'recovered_file';
+                                }
+
+                                await conn.sendMessage(dmJid, mediaMsg);
+                                logSuccess('AntiDelete: recovered ' + mediaKey + ' sent to ' + senderNumber + ' DM', '📎');
+                            } catch (mediaErr) {
+                                logError('AntiDelete: failed to send recovered media: ' + mediaErr.message, '❌');
+                            }
+                        }
+
+                        // Clean up stores
+                        global.messageStore.delete(messageId);
+                        global.mediaStore.delete(messageId);
+
+                        logSuccess('AntiDelete alert sent to ' + senderNumber + ' DM', '✅');
                     }
                 } catch (error) { logError('messages.update handler error: ' + error.message, '❌'); }
             });
