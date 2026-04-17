@@ -40,9 +40,10 @@ async (conn, mek, m, { from, reply, text, isCreator, isOwner }) => {
             // Confirm it's working
             const confirmStatus = await getAnti();
             if (confirmStatus) {
-                return reply('✅ *Anti-delete has been ENABLED!*\n\n' +
-                          '🛡️ Deleted messages will now be sent to your DM.\n' +
-                          '_Make sure the bot is running to monitor deletions._');
+            return reply('✅ *Anti-delete has been ENABLED!*\n\n' +
+                      '🛡️ Deleted messages will be sent to the *sender\'s DM*.\n' +
+                      '📲 Works for text, images, video, audio, stickers & documents.\n' +
+                      '_Make sure the bot is running to monitor deletions._');
             } else {
                 return reply('❌ Failed to enable anti-delete. Check database.');
             }
