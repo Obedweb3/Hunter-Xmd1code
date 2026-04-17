@@ -414,11 +414,11 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 9090;
 
-// Global toggles
-global.AUTO_VIEW_STATUS = true;
-global.AUTO_REACT_STATUS = true;
-global.AUTO_REPLY = false;
-global.AUTO_SAVE_STATUS = false;
+// Global toggles — driven by config (which reads from Heroku env vars / app.json)
+global.AUTO_VIEW_STATUS  = config.AUTO_STATUS_SEEN  === 'true';
+global.AUTO_REACT_STATUS = config.AUTO_STATUS_REACT === 'true';
+global.AUTO_REPLY        = config.AUTO_REPLY        === 'true';
+global.AUTO_SAVE_STATUS  = false; // not yet in app.json, keep off by default
 
 const autoReplyCooldown = new Map();
 
