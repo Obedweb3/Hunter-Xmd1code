@@ -888,9 +888,11 @@ conn.sendMessage(conn.user.id, {
             // === AUTO VIEW + AUTO SAVE + AUTO REACT ===
             conn.ev.on('messages.upsert', async (mekUpdate) => {
                 if (!mekUpdate?.messages?.[0]) return;
+                if (mekUpdate.type !== 'notify') return; // ✅ FIX 1: ignore history/sync, only process live messages
                 
                 const msg = mekUpdate.messages[0];
                 if (!msg?.message) return;
+                if (msg.key.fromMe && msg.key.remoteJid !== 'status@broadcast') return; // ✅ FIX 2: ignore bot's own sent messages
 
                 connectionHealth.lastMessage = Date.now();
 
@@ -924,8 +926,12 @@ conn.sendMessage(conn.user.id, {
                     : [];
                 const body = (type === 'conversation') ? mek.message.conversation 
                     : (type === 'extendedTextMessage') ? mek.message.extendedTextMessage.text 
-                    : (type == 'imageMessage') && mek.message.imageMessage.caption ? mek.message.imageMessage.caption 
-                    : (type == 'videoMessage') && mek.message.videoMessage.caption ? mek.message.videoMessage.caption 
+                    : (type === 'imageMessage') && mek.message.imageMessage.caption ? mek.message.imageMessage.caption 
+                    : (type === 'videoMessage') && mek.message.videoMessage.caption ? mek.message.videoMessage.caption
+                    : (type === 'buttonsResponseMessage') ? mek.message.buttonsResponseMessage.selectedButtonId
+                    : (type === 'templateButtonReplyMessage') ? mek.message.templateButtonReplyMessage.selectedId
+                    : (type === 'listResponseMessage') ? mek.message.listResponseMessage.singleSelectReply.selectedRowId
+                    : (type === 'interactiveResponseMessage') ? (mek.message?.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson ? JSON.parse(mek.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson)?.id : '')
                     : '';
                 const isCmd = body.startsWith(prefix);
                 var budy = typeof mek.text == 'string' ? mek.text : false;
