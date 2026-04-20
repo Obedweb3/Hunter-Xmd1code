@@ -585,6 +585,14 @@ async function connectToWA() {
     let retryCount = 0;
     const maxRetries = 5;
     
+    /**
+     * Attempt to establish a connection to the WhatsApp service.
+     *
+     * This asynchronous function initializes the connection by setting up authentication state, fetching the latest Baileys version, and configuring the socket connection. It handles various connection updates, including QR code generation, reconnection logic, and message handling. The function also implements an anti-delete system for messages and manages auto-reply and command processing based on the bot's configuration.
+     *
+     * @returns {Promise<void>} A promise that resolves when the connection is successfully established.
+     * @throws {Error} If there is an issue during the connection process or message handling.
+     */
     async function attemptConnection() {
         try {
             const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/sessions/');
