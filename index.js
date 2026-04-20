@@ -578,6 +578,14 @@ let sessionCloseCount = 0;
 const MAX_MAC_ERRORS = 3;
 const MAX_SESSION_CLOSES = 10;
 
+/**
+ * Establish a connection to WhatsApp using the Baileys library.
+ *
+ * This function initializes the connection process, handling retries and monitoring session health. It sets up event listeners for connection updates, message handling, and error detection. The connection is established with various configurations, including session management and media handling. If the connection fails, it retries up to a maximum number of attempts, logging relevant information throughout the process.
+ *
+ * @returns {Promise<void>} A promise that resolves when the connection is successfully established.
+ * @throws {Error} If the connection fails after the maximum number of retries.
+ */
 async function connectToWA() {
     logDivider('WHATSAPP CONNECTION');
     logConnection('CONNECTING', 'Initializing...');
