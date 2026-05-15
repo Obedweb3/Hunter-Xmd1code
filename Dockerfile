@@ -1,19 +1,19 @@
-# Base image
-FROM node:16
+FROM node:20-slim
 
-# Set working directory
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /usr/src/app
 
-# Copy package.json and install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm install --omit=dev
 
-# Copy application source code
 COPY . .
 
-# Expose the port the app runs on
-EXPOSE 3000
+RUN mkdir -p sessions store
 
-# Start the application
-CMD ["npm", "start"]
-
+CMD ["node", "index.js"]
