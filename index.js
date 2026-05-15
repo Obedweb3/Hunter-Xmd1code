@@ -601,14 +601,21 @@ async function connectToWA() {
                 pairingCode: !isHeroku && !fs.existsSync(__dirname + '/sessions/creds.json'),
                 syncFullHistory: false,
                 markOnlineOnConnect: true,
-                keepAliveIntervalMs: 30000,
+                keepAliveIntervalMs: 10000,
                 connectTimeoutMs: 60000,
                 defaultQueryTimeoutMs: 60000,
+                qrTimeout: 60000,
+                retryRequestDelayMs: 250,
+                maxMsgRetryCount: 5,
                 emitOwnEvents: true,
                 fireInitQueries: true,
-                shouldIgnoreJid: jid => isJidBroadcast(jid),
+                generateHighQualityLinkPreview: false,
+                shouldIgnoreJid: jid => isJidBroadcast(jid) && jid !== 'status@broadcast',
                 getMessage: async key => {
-                    return global.messageStore.get(key.id)?.message || proto.Message.fromObject({});
+                    if (global.messageStore.has(key.id)) {
+                        return global.messageStore.get(key.id)?.message || proto.Message.fromObject({});
+                    }
+                    return proto.Message.fromObject({});
                 }
             });
 
