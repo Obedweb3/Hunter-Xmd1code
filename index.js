@@ -372,13 +372,23 @@ function clearSessionData() {
             } else {
                 logSystem('Heroku mode: Using SESSION_ID from env vars...', '☁️');
                 try {
+                    const zlib = require('zlib');
                     let base64Session = process.env.SESSION_ID.trim();
                     if (base64Session.startsWith('HUNTER-XMD~')) {
                         base64Session = base64Session.replace('HUNTER-XMD~', '').trim();
                     }
                     if (base64Session && base64Session.length >= 100) {
-                        const decoded = Buffer.from(base64Session, 'base64').toString('utf-8');
-                        const creds = JSON.parse(decoded);
+                        const rawBuffer = Buffer.from(base64Session, 'base64');
+                        let jsonStr;
+                        // Try gzip decompression first, then fall back to plain UTF-8
+                        try {
+                            jsonStr = zlib.gunzipSync(rawBuffer).toString('utf-8');
+                            logSystem('Session decoded (gzip format)', '📦');
+                        } catch (_) {
+                            jsonStr = rawBuffer.toString('utf-8');
+                            logSystem('Session decoded (plain format)', '📦');
+                        }
+                        const creds = JSON.parse(jsonStr);
                         fs.mkdirSync(__dirname + '/sessions', { recursive: true });
                         fs.writeFileSync(__dirname + '/sessions/creds.json', JSON.stringify(creds, null, 2));
                         logSuccess('SESSION_ID successfully saved to creds.json', '✅');

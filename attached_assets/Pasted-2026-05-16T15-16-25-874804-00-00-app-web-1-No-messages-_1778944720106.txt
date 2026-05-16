@@ -1,0 +1,110 @@
+2026-05-16T15:16:25.874804+00:00 app[web.1]: ⚠️ No messages received for 5+ minutes, connection may be stale
+2026-05-16T15:16:45.689116+00:00 app[api]: Log session created by user techobed00@gmail.com
+2026-05-16T15:16:59.000000+00:00 app[api]: Build started by user techobed00@gmail.com
+2026-05-16T15:17:11.031865+00:00 app[api]: Log session created by user techobed00@gmail.com
+2026-05-16T15:17:19.539480+00:00 heroku[web.1]: Restarting
+2026-05-16T15:17:19.596641+00:00 heroku[web.1]: State changed from up to starting
+2026-05-16T15:17:19.677488+00:00 heroku[worker.1]: Restarting
+2026-05-16T15:17:19.679935+00:00 heroku[worker.1]: State changed from up to starting
+2026-05-16T15:17:19.292724+00:00 app[api]: Release v7 created by user techobed00@gmail.com
+2026-05-16T15:17:19.292724+00:00 app[api]: Deploy 80a6d5d0 by user techobed00@gmail.com
+2026-05-16T15:17:20.456215+00:00 heroku[web.1]: Stopping all processes with SIGTERM
+2026-05-16T15:17:20.560044+00:00 heroku[web.1]: Process exited with status 143
+2026-05-16T15:17:20.579042+00:00 heroku[worker.1]: Stopping all processes with SIGTERM
+2026-05-16T15:17:20.706783+00:00 heroku[worker.1]: Process exited with status 143
+2026-05-16T15:17:23.000000+00:00 app[api]: Build succeeded
+2026-05-16T15:17:29.221534+00:00 heroku[web.1]: Starting process with command `npm start`
+2026-05-16T15:17:29.426839+00:00 heroku[worker.1]: Starting process with command `node index.js`
+2026-05-16T15:17:30.096202+00:00 heroku[worker.1]: State changed from starting to up
+2026-05-16T15:17:30.309717+00:00 app[web.1]: 
+2026-05-16T15:17:30.309733+00:00 app[web.1]: > HUNTERXMD_PRO@4.5.0 start
+2026-05-16T15:17:30.309733+00:00 app[web.1]: > node index.js
+2026-05-16T15:17:30.309733+00:00 app[web.1]: 
+2026-05-16T15:17:30.494174+00:00 app[worker.1]: ╔══════════════════════════════════════════════════════════╗
+2026-05-16T15:17:30.494490+00:00 app[worker.1]: ║           HUNTERXND_PRO • ULTIMATE WHATSAPP BOT • V5.1PRO           ║
+2026-05-16T15:17:30.494558+00:00 app[worker.1]: ╚══════════════════════════════════════════════════════════╝
+2026-05-16T15:17:30.494574+00:00 app[worker.1]: 
+2026-05-16T15:17:30.494656+00:00 app[worker.1]: ═════════════════『 SYSTEM INITIALIZATION 』═════════════════
+2026-05-16T15:17:30.494716+00:00 app[worker.1]: 🚀 Starting HunterXmd pro WhatsApp Bot...
+2026-05-16T15:17:30.652292+00:00 app[worker.1]: ☁️ Heroku mode: Using SESSION_ID from env vars...
+2026-05-16T15:17:30.652471+00:00 app[worker.1]: ❌ Failed to process SESSION_ID: Unexpected token '', "CS�0?�D"... is not valid JSON
+2026-05-16T15:17:30.652733+00:00 app[worker.1]: 🧹 Cleared ALL session data (including creds.json)
+2026-05-16T15:17:30.702896+00:00 app[worker.1]: ═══════════════════════『 WEB SERVER 』═══════════════════════
+2026-05-16T15:17:30.703072+00:00 app[worker.1]: 🌐 Web Server Status: Running on port 47798
+2026-05-16T15:17:30.703180+00:00 app[worker.1]: 🔗 URL: http://localhost:47798
+2026-05-16T15:17:30.706613+00:00 app[worker.1]: Database synchronized successfully.
+2026-05-16T15:17:30.602083+00:00 app[web.1]: ╔══════════════════════════════════════════════════════════╗
+2026-05-16T15:17:30.602534+00:00 app[web.1]: ║           HUNTERXND_PRO • ULTIMATE WHATSAPP BOT • V5.1PRO           ║
+2026-05-16T15:17:30.602614+00:00 app[web.1]: ╚══════════════════════════════════════════════════════════╝
+2026-05-16T15:17:30.602645+00:00 app[web.1]: 
+2026-05-16T15:17:30.602765+00:00 app[web.1]: ═════════════════『 SYSTEM INITIALIZATION 』═════════════════
+2026-05-16T15:17:30.602855+00:00 app[web.1]: 🚀 Starting HunterXmd pro WhatsApp Bot...
+2026-05-16T15:17:30.760182+00:00 app[web.1]: ☁️ Heroku mode: Using SESSION_ID from env vars...
+2026-05-16T15:17:30.760368+00:00 app[web.1]: ❌ Failed to process SESSION_ID: Unexpected token '', "CS�0?�D"... is not valid JSON
+2026-05-16T15:17:30.760588+00:00 app[web.1]: 🧹 Cleared ALL session data (including creds.json)
+2026-05-16T15:17:30.811009+00:00 app[web.1]: ═══════════════════════『 WEB SERVER 』═══════════════════════
+2026-05-16T15:17:30.811185+00:00 app[web.1]: 🌐 Web Server Status: Running on port 24653
+2026-05-16T15:17:30.811293+00:00 app[web.1]: 🔗 URL: http://localhost:24653
+2026-05-16T15:17:30.814593+00:00 app[web.1]: Database synchronized successfully.
+2026-05-16T15:17:31.072395+00:00 heroku[web.1]: State changed from starting to up
+2026-05-16T15:17:34.705650+00:00 app[worker.1]: ══════════════════『 WHATSAPP CONNECTION 』══════════════════
+2026-05-16T15:17:34.705856+00:00 app[worker.1]: 
+2026-05-16T15:17:34.705856+00:00 app[worker.1]: 🔄 CONNECTING Initializing...
+2026-05-16T15:17:34.705856+00:00 app[worker.1]: 
+2026-05-16T15:17:34.814633+00:00 app[web.1]: ══════════════════『 WHATSAPP CONNECTION 』══════════════════
+2026-05-16T15:17:34.814921+00:00 app[web.1]: 
+2026-05-16T15:17:34.814921+00:00 app[web.1]: 🔄 CONNECTING Initializing...
+2026-05-16T15:17:34.814921+00:00 app[web.1]: 
+2026-05-16T15:18:05.209746+00:00 heroku[web.1]: Restarting
+2026-05-16T15:18:05.272379+00:00 heroku[web.1]: State changed from up to starting
+2026-05-16T15:18:05.348515+00:00 heroku[worker.1]: Restarting
+2026-05-16T15:18:05.352537+00:00 heroku[worker.1]: State changed from up to starting
+2026-05-16T15:18:04.919087+00:00 app[api]: Release v8 created by user techobed00@gmail.com
+2026-05-16T15:18:04.919087+00:00 app[api]: Deploy 80a6d5d0 by user techobed00@gmail.com
+2026-05-16T15:18:06.113908+00:00 heroku[web.1]: Stopping all processes with SIGTERM
+2026-05-16T15:18:06.118428+00:00 heroku[worker.1]: Stopping all processes with SIGTERM
+2026-05-16T15:18:06.216797+00:00 heroku[web.1]: Process exited with status 143
+2026-05-16T15:18:06.217199+00:00 heroku[worker.1]: Process exited with status 143
+2026-05-16T15:18:09.000000+00:00 app[api]: Build succeeded
+2026-05-16T15:18:14.967285+00:00 heroku[web.1]: Starting process with command `npm start`
+2026-05-16T15:18:15.013357+00:00 heroku[worker.1]: Starting process with command `node index.js`
+2026-05-16T15:18:15.721885+00:00 heroku[worker.1]: State changed from starting to up
+2026-05-16T15:18:16.037398+00:00 app[web.1]: 
+2026-05-16T15:18:16.037418+00:00 app[web.1]: > HUNTERXMD_PRO@4.5.0 start
+2026-05-16T15:18:16.037419+00:00 app[web.1]: > node index.js
+2026-05-16T15:18:16.037419+00:00 app[web.1]: 
+2026-05-16T15:18:16.126629+00:00 app[worker.1]: ╔══════════════════════════════════════════════════════════╗
+2026-05-16T15:18:16.126946+00:00 app[worker.1]: ║           HUNTERXND_PRO • ULTIMATE WHATSAPP BOT • V5.1PRO           ║
+2026-05-16T15:18:16.126980+00:00 app[worker.1]: ╚══════════════════════════════════════════════════════════╝
+2026-05-16T15:18:16.127002+00:00 app[worker.1]: 
+2026-05-16T15:18:16.127084+00:00 app[worker.1]: ═════════════════『 SYSTEM INITIALIZATION 』═════════════════
+2026-05-16T15:18:16.127144+00:00 app[worker.1]: 🚀 Starting HunterXmd pro WhatsApp Bot...
+2026-05-16T15:18:16.292664+00:00 app[worker.1]: ☁️ Heroku mode: Using SESSION_ID from env vars...
+2026-05-16T15:18:16.292807+00:00 app[worker.1]: ❌ Failed to process SESSION_ID: Unexpected token '', "CS�0?�D"... is not valid JSON
+2026-05-16T15:18:16.293054+00:00 app[worker.1]: 🧹 Cleared ALL session data (including creds.json)
+2026-05-16T15:18:16.343739+00:00 app[worker.1]: ═══════════════════════『 WEB SERVER 』═══════════════════════
+2026-05-16T15:18:16.343893+00:00 app[worker.1]: 🌐 Web Server Status: Running on port 13260
+2026-05-16T15:18:16.344011+00:00 app[worker.1]: 🔗 URL: http://localhost:13260
+2026-05-16T15:18:16.347425+00:00 app[worker.1]: Database synchronized successfully.
+2026-05-16T15:18:16.312728+00:00 app[web.1]: ╔══════════════════════════════════════════════════════════╗
+2026-05-16T15:18:16.313080+00:00 app[web.1]: ║           HUNTERXND_PRO • ULTIMATE WHATSAPP BOT • V5.1PRO           ║
+2026-05-16T15:18:16.313129+00:00 app[web.1]: ╚══════════════════════════════════════════════════════════╝
+2026-05-16T15:18:16.313148+00:00 app[web.1]: 
+2026-05-16T15:18:16.313237+00:00 app[web.1]: ═════════════════『 SYSTEM INITIALIZATION 』═════════════════
+2026-05-16T15:18:16.313320+00:00 app[web.1]: 🚀 Starting HunterXmd pro WhatsApp Bot...
+2026-05-16T15:18:16.474888+00:00 app[web.1]: ☁️ Heroku mode: Using SESSION_ID from env vars...
+2026-05-16T15:18:16.475136+00:00 app[web.1]: ❌ Failed to process SESSION_ID: Unexpected token '', "CS�0?�D"... is not valid JSON
+2026-05-16T15:18:16.475411+00:00 app[web.1]: 🧹 Cleared ALL session data (including creds.json)
+2026-05-16T15:18:16.520711+00:00 app[web.1]: ═══════════════════════『 WEB SERVER 』═══════════════════════
+2026-05-16T15:18:16.520870+00:00 app[web.1]: 🌐 Web Server Status: Running on port 26721
+2026-05-16T15:18:16.520982+00:00 app[web.1]: 🔗 URL: http://localhost:26721
+2026-05-16T15:18:16.524440+00:00 app[web.1]: Database synchronized successfully.
+2026-05-16T15:18:16.794203+00:00 heroku[web.1]: State changed from starting to up
+2026-05-16T15:18:20.347999+00:00 app[worker.1]: ══════════════════『 WHATSAPP CONNECTION 』══════════════════
+2026-05-16T15:18:20.348171+00:00 app[worker.1]: 
+2026-05-16T15:18:20.348172+00:00 app[worker.1]: 🔄 CONNECTING Initializing...
+2026-05-16T15:18:20.348172+00:00 app[worker.1]: 
+2026-05-16T15:18:20.523888+00:00 app[web.1]: ══════════════════『 WHATSAPP CONNECTION 』══════════════════
+2026-05-16T15:18:20.524136+00:00 app[web.1]: 
+2026-05-16T15:18:20.524137+00:00 app[web.1]: 🔄 CONNECTING Initializing...
+2026-05-16T15:18:20.524137+00:00 app[web.1]: 
